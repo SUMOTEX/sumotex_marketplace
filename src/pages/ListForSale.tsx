@@ -750,7 +750,7 @@ const ListforSale = observer(() => {
             </div>}
             <div >
                 <div>
-                    {!god.currentNetwork.account ? <Center>Wallet not connected</Center> : loading ? <Center>Loading</Center> : allNFT.length === 0 || machineFi.length===0? <div style={{
+                    {!god.currentNetwork.account ? <Center>Wallet not connected</Center> : loading ? <Center>Loading</Center> : allNFT.length === 0 && machineFi.length===0? <div style={{
                         padding: 10,
                         textAlign: "center"
                     }}>
