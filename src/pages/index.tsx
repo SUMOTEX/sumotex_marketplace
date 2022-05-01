@@ -44,7 +44,7 @@ const Home = observer(() => {
   const [highestPrice, setHighestPrice] = useState(0)
   const [volume, setVolume] = useState(0)
   const [theModalNFT, setModalNFT] = useState({ image: '', name: '', edition: '', dividendAmount: '', price: '', itemId: '' })
-  const [machineFiNFT, setMachineFiModal] = useState({ id: '', image: '', name: '',itemID:'',price:'' })
+  const [machineFiNFT, setMachineFiModal] = useState({ id: '', image: '', name: '', itemID: '', price: '' })
   const [displayingNFT, setDisplayNFT] = useState([])
   const [allNFT, setAllNFT] = useState([])
   const [emperor, setEmperor] = useState([])
@@ -109,12 +109,12 @@ const Home = observer(() => {
   }
   function closeModal2() {
     setIsOpen2(false);
-}
-const setModalItems2 = (item, type) => {
+  }
+  const setModalItems2 = (item, type) => {
     setIsOpen2(true)
     setMachineFiModal(item)
 
-}
+  }
   const theInitialFunction = async () => {
     //console.log(god.currentChain.chainId,god.currentChain.Coin)
     let theAddress = await god.currentNetwork.execContract({
@@ -209,9 +209,9 @@ const setModalItems2 = (item, type) => {
           ...prevState, {
             id: theItemID,
             ownerID: ownerAdd,
-            itemID:itemID,
+            itemID: itemID,
             name: theItemsNFT['name'],
-            price: thePrice,
+            price: Number(thePrice),
             image: theItemsNFT['image']
           }]))
       })
@@ -512,13 +512,25 @@ const setModalItems2 = (item, type) => {
     }
     else if (filterValue === 6) {
       //lowest
-      let gfg = _.orderBy(displayingNFT, ['price'], ['asc']);
-      setDisplayNFT(gfg)
+      if (selectedNFT == 1) {
+        let gfg = _.orderBy(machineFi, ['price'], ['asc']);
+        console.log(gfg)
+        setDisplayNFT(gfg)
+      } else {
+        let gfg = _.orderBy(displayingNFT, ['price'], ['asc']);
+        console.log(gfg)
+        setDisplayNFT(gfg)
+      }
     }
     else if (filterValue === 7) {
       //highest
-      let gfg = _.orderBy(displayingNFT, ['price'], ['desc']);
-      setDisplayNFT(gfg)
+      if (selectedNFT == 1) {
+        let gfg = _.orderBy(machineFi, ['price'], ['desc']);
+        setDisplayNFT(gfg)
+      } else {
+        let gfg = _.orderBy(displayingNFT, ['price'], ['desc']);
+        setDisplayNFT(gfg)
+      }
     }
     else if (filterValue === 8) {
       //highest
@@ -788,7 +800,7 @@ const setModalItems2 = (item, type) => {
                   <p style={{ fontSize: 22, fontWeight: 'bold', color: 'green' }}>Price {machineFiNFT.price} IOTEX</p>
                   {boughtNFT ? <p>Succesfully purchased!</p> :
                     <Button onClick={() => buyMachineFi(machineFiNFT.itemID, machineFiNFT.price)}
-                      mt="5" bg="lightgreen" disabled={loadSpinner?true:false}> {loadSpinner ? <Spinner /> : null} {'BUY NOW'}</Button>}
+                      mt="5" bg="lightgreen" disabled={loadSpinner ? true : false}> {loadSpinner ? <Spinner /> : null} {'BUY NOW'}</Button>}
                 </Box>
               </Modal>
               {selectedNFT == 0 ? ([...new Set(displayingNFT)]).map((item, index) => {
