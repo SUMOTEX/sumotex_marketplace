@@ -182,7 +182,6 @@ const ListforSale = observer(() => {
             getMachinefiNFT(machineFiNFTArray);
         }
 
-
     }
     const delistNFT = async (item) => {
         var theItemIndex = (listIDNFT.indexOf(item));
@@ -389,9 +388,6 @@ const ListforSale = observer(() => {
                 name: theItemsNFT['name'],
                 image: theItemsNFT['image']
             }]))
-
-
-
     }
     const filterNFTs = async (array) => {
         array.map(async (item, index) => {

@@ -34,28 +34,36 @@ const Home = observer(() => {
     currentMinted: 0
   });
   const [loading, setLoading] = useState(true);
-  const [totalNFT, setTotalNFT] = useState(0)
-  const [soldNFT, setSoldNFT] = useState(0)
-  const [machineFi, setMachineFiNFT] = useState([])
-  const [boughtNFT, setBoughtNFT] = useState(false)
-  const [loadSpinner, setSpinner] = useState(false)
-  const [selectedFilter, setSelectedFilter] = useState(0)
-  const [floorPrice, setFloorPrice] = useState(0)
-  const [highestPrice, setHighestPrice] = useState(0)
-  const [volume, setVolume] = useState(0)
-  const [theModalNFT, setModalNFT] = useState({ image: '', name: '', edition: '', dividendAmount: '', price: '', itemId: '' })
-  const [machineFiNFT, setMachineFiModal] = useState({ id: '', image: '', name: '', itemID: '', price: '' })
-  const [displayingNFT, setDisplayNFT] = useState([])
-  const [allNFT, setAllNFT] = useState([])
-  const [emperor, setEmperor] = useState([])
-  const [king, setKing] = useState([])
-  const [knights, setKnights] = useState([])
-  const [soldier, setSoldier] = useState([])
-  const [minion, setMinion] = useState([])
+  //SUMOTEX SUMMARY
+  const [totalNFT, setTotalNFT] = useState(0);
+  const [soldNFT, setSoldNFT] = useState(0);
+  const [floorPrice, setFloorPrice] = useState(0);
+  const [highestPrice, setHighestPrice] = useState(0);
+  const [volume, setVolume] = useState(0);
+  //MACHINEFI SUMMARY
+  const [mtotalNFT, setMTotalNFT] = useState(0);
+  const [msoldNFT, setMSoldNFT] = useState(0);
+  const [mfloorPrice, setMFloorPrice] = useState(0);
+  const [mhighestPrice, setMHighestPrice] = useState(0);
+  const [mvolume, setMVolume] = useState(0);
+
+  const [machineFi, setMachineFiNFT] = useState([]);
+  const [boughtNFT, setBoughtNFT] = useState(false);
+  const [loadSpinner, setSpinner] = useState(false);
+  const [selectedFilter, setSelectedFilter] = useState(0);
+  const [theModalNFT, setModalNFT] = useState({ image: '', name: '', edition: '', dividendAmount: '', price: '', itemId: '' });
+  const [machineFiNFT, setMachineFiModal] = useState({ id: '', image: '', name: '', itemID: '', price: '' });
+  const [displayingNFT, setDisplayNFT] = useState([]);
+  const [allNFT, setAllNFT] = useState([]);
+  const [emperor, setEmperor] = useState([]);
+  const [king, setKing] = useState([]);
+  const [knights, setKnights] = useState([]);
+  const [soldier, setSoldier] = useState([]);
+  const [minion, setMinion] = useState([]);
   //type of NFT
   //0 - SUMO
   //1 - MachinFI
-  const [selectedNFT, setSelectedNFT] = useState(0)
+  const [selectedNFT, setSelectedNFT] = useState(0);
   const newToken = new TokenState({
     abi: erc721,
     symbol: 'SUMOTEX',
@@ -184,12 +192,50 @@ const Home = observer(() => {
         return (item['tokenId']).toNumber() !== 0;
       })
       var theArray2 = theArray.filter(function (item) {
+        return (item['nftContract']) == "0x0c5AB026d74C451376A4798342a685a0e99a5bEe"
+      })
+      var theArray3 = theArray2.filter(function (item) {
         return (item['sold']) == false;
       })
 
-      var theArray3 = theArray2.filter(function (item) {
-        return (item['nftContract']) == "0x0c5AB026d74C451376A4798342a685a0e99a5bEe"
+      //summary section for machineFi
+      var soldArray = theArray2.filter(function (item) {
+        return (item['sold']) == true;
       })
+      var totalSoldVolume = 0
+      soldArray.map((item, index) => {
+        var theItem = (Web3.utils.fromWei(String(Web3.utils.toBN(item['price'])), 'ether'))
+        totalSoldVolume += Number((theItem))
+        //console.log(totalSoldVolume.toString())
+      })
+      //getFloorPrice
+      var thefloorPrice = 0
+      if (theArray3.length != 0) {
+        thefloorPrice = Number(Web3.utils.fromWei(String(theArray3[0]['price']), 'ether'))
+        theArray3.map((item, index) => {
+          var theItem = Number(Web3.utils.fromWei(String((item['price'])), 'ether'))
+          if (thefloorPrice >= theItem) {
+            thefloorPrice = theItem
+          }
+        })
+      }
+      //getCeilingPrice
+      var theCeilingPrice = 0
+      if (soldArray.length != 0) {
+        theCeilingPrice = Number(Web3.utils.fromWei(String(soldArray[0]['price']), 'ether'))
+        soldArray.map((item, index) => {
+          var theItem = Number(Web3.utils.fromWei(String((item['price'])), 'ether'))
+          if (theCeilingPrice <= theItem) {
+            theCeilingPrice = theItem
+          }
+        })
+      }
+      setMTotalNFT(theArray3.length)
+      setMVolume(totalSoldVolume);
+      setMFloorPrice(thefloorPrice);
+      setMHighestPrice(theCeilingPrice);
+      setMSoldNFT(soldArray.length);
+
       theArray3.map(async (item, index) => {
         var ownerAdd = (item['owner']).toString()
         var theItemID = item['tokenId'].toNumber()
@@ -602,7 +648,37 @@ const Home = observer(() => {
             w={["80%", "80%", "20%", "18%"]} p="4" m="2" borderWidth='2px' borderColor="green" borderRadius='lg' >
             <h4 style={{ fontSize: 16, fontWeight: 'bold', color: "green" }}>Volume: {(volume).toLocaleString(navigator.language, { minimumFractionDigits: 0 })} iotex</h4>
           </Box>
-        </Box> : null}
+        </Box> : <Box style={{
+          display: 'flex',
+          justifyContent: 'center',
+          flexWrap: "wrap",
+          flexDirection: 'row', minHeight: 20
+        }}>
+          <Toaster
+            position="top-right"
+            reverseOrder={false}
+          />
+          <Box
+            w={["80%", "80%", "20%", "18%"]} p="4" m="2" borderWidth='2px' borderColor="rebeccapurple" borderRadius='lg' >
+            <h4 style={{ fontSize: 16, fontWeight: 'bold', color: "rebeccapurple" }}>MachineFi for sale: {mtotalNFT}</h4>
+          </Box>
+          <Box
+            w={["80%", "80%", "20%", "18%"]} p="4" m="2" borderWidth='2px' borderColor="rebeccapurple" borderRadius='lg' >
+            <h4 style={{ fontSize: 16, fontWeight: 'bold', color: "rebeccapurple" }}>Sold NFT: {msoldNFT}</h4>
+          </Box>
+          <Box
+            w={["80%", "80%", "20%", "18%"]} p="4" m="2" borderWidth='2px' borderColor="rebeccapurple" borderRadius='lg' >
+            <h4 style={{ fontSize: 16, fontWeight: 'bold', color: "rebeccapurple" }}>Floor Price: {(mfloorPrice)} iotex</h4>
+          </Box>
+          <Box
+            w={["80%", "80%", "20%", "18%"]} p="4" m="2" borderWidth='2px' borderColor="rebeccapurple" borderRadius='lg' >
+            <h4 style={{ fontSize: 16, fontWeight: 'bold', color: "rebeccapurple" }}>Highest Sold Price: {(mhighestPrice).toLocaleString(navigator.language, { minimumFractionDigits: 0 })} iotex</h4>
+          </Box>
+          <Box
+            w={["80%", "80%", "20%", "18%"]} p="4" m="2" borderWidth='2px' borderColor="rebeccapurple" borderRadius='lg' >
+            <h4 style={{ fontSize: 16, fontWeight: 'bold', color: "rebeccapurple" }}>Volume: {(mvolume).toLocaleString(navigator.language, { minimumFractionDigits: 0 })} iotex</h4>
+          </Box>
+        </Box>}
         {selectedNFT == 0 ? <Box style={{
           display: 'flex',
           justifyContent: 'center',
