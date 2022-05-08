@@ -4,6 +4,7 @@ import toast from 'react-hot-toast';
 import API from '../common/utils/API';
 import marketplaceABI from '@/constants/abi/marketplace.json';
 import machineFiABI from '@/constants/abi/machineFi.json';
+import iotexDomainABI from '@/constants/abi/iotexDomain.json';
 import erc721 from '@/constants/abi/erc721.json';
 import {
     Center, Container, Input, Box, Spinner, Button, Accordion,
@@ -11,6 +12,7 @@ import {
     AccordionButton,
     AccordionPanel,
     AccordionIcon,
+    list,
 } from '@chakra-ui/react';
 import { useStore } from '../store/index';
 import { StringState, BooleanState } from '../store/standard/base';
@@ -20,8 +22,6 @@ import { eventBus } from '../lib/event';
 import { BigNumberState } from '../store/standard/BigNumberState';
 import 'reactjs-popup/dist/index.css';
 import Modal from 'react-modal';
-import BigNumber from 'bignumber.js';
-import MachineFi from './MachineFi';
 import _ from 'lodash';
 
 const ListforSale = observer(() => {
@@ -41,6 +41,7 @@ const ListforSale = observer(() => {
     const [userPrice, setPrice] = useState('')
     const [theModalNFT, setModalNFT] = useState({ image: '', name: '', edition: '', dividendAmount: '' })
     const [machineFiNFT, setMachineFiModal] = useState({ id: '', image: '', name: '' })
+    const [iotexDomainNFT, setIotexDomainModal] = useState({ id: '', image: '', name: '' })
     const [displayingNFT, setDisplayNFT] = useState([])
     //check listed sumo and itemID
     const [listIDNFT, setListedID] = useState([])
@@ -50,6 +51,12 @@ const ListforSale = observer(() => {
     const [listMachineFiNFTItemID, setListedMachineFiItemID] = useState([])
     const [allNFT, setAllNFT] = useState([])
     const [machineFi, setMachineFi] = useState([])
+    //Check for IOTEX DOMAIN NAME
+    const [iotexDomain, setIOTEXDomain] = useState([])
+    const [listIotexDomainNFT, setListedIotexDomainID] = useState([])
+    const [listDomainItemID, setListedDomainItemID] = useState([])
+
+    //all emperor traits filter
     const [emperor, setEmperor] = useState([])
     const [king, setKing] = useState([])
     const [knights, setKnights] = useState([])
@@ -94,6 +101,9 @@ const ListforSale = observer(() => {
         setKnights([])
         setSoldier([])
         setMinion([])
+        setIOTEXDomain([])
+        setMachineFi([])
+        setListedIotexDomainID([])
         theInitialFunction();
 
     }, [refreshPage]);
@@ -131,6 +141,7 @@ const ListforSale = observer(() => {
         catch (e) {
             console.log(e)
         }
+        //fetch machinfiNFT
         let theListedNFT = await god.currentNetwork.execContract({
             address: '0x8b58c2225b92F3B3252B2c5860AC240dCE05172F',
             abi: marketplaceABI,
@@ -139,10 +150,14 @@ const ListforSale = observer(() => {
         })
         if (theListedNFT instanceof Array) {
             var theArray = theListedNFT.filter(function (item) {
+                return (item['nftContract']) == "0x9756E951dd76e933e34434Db4Ed38964951E588b"
+
+            })
+            theArray = theArray.filter(function (item) {
                 return (item['tokenId']).toNumber() !== 0;
             })
             var theArray2 = theArray.filter(function (item) {
-                return (item['sold']) != true;
+                return (item['sold']) == false;
             })
             var theArrayItem = []
             var theIndexItem = []
@@ -152,8 +167,14 @@ const ListforSale = observer(() => {
                 setListedID(theArrayItem)
                 setItemID(theIndexItem);
             })
-            var machineFiNFTMarketplace = theArray2.filter(function (item) {
+            var machineFiNFTMarketplace = theListedNFT.filter(function (item) {
                 return (item['nftContract']) == '0x0c5AB026d74C451376A4798342a685a0e99a5bEe';
+            })
+            machineFiNFTMarketplace=machineFiNFTMarketplace.filter(function (item) {
+                return (item['sold']) == false;
+            })
+            machineFiNFTMarketplace=machineFiNFTMarketplace.filter(function (item) {
+                return (item['tokenId']).toNumber() !== 0;
             })
         }
         if (machineFiNFTMarketplace.length != 0) {
@@ -180,6 +201,39 @@ const ListforSale = observer(() => {
                 params: [god.currentNetwork.account, i]
             })
             getMachinefiNFT(machineFiNFTArray);
+        }
+        if (theListedNFT instanceof Array) {
+            var iotexDomainNFTMarketplace = theListedNFT.filter(function (item) {
+                return (item['nftContract']) == '0x4608eF714C8047771054757409c1A451CEf8d69f';
+            })
+            var theUnsold = iotexDomainNFTMarketplace.filter(function (item) {
+                return (item['sold']) != true;
+            })
+            if (theUnsold.length != 0) {
+                theUnsold.map((item, index) => {
+                    theArrayItem.push(String(item['tokenId']))
+                    theIndexItem.push((item['itemId']).toNumber())
+                    setListedIotexDomainID(theArrayItem)
+                    setListedDomainItemID(theIndexItem)
+                })
+            }
+            let iotexDomainGetBalance = await god.currentNetwork.execContract({
+                address: '0x4608eF714C8047771054757409c1A451CEf8d69f',
+                abi: iotexDomainABI,
+                method: "balanceOf",
+                //params: ['0xEb17b644153e222D33Ac48bfBBCB8e98F45bfa19']
+                params: [god.currentNetwork.account]
+            })
+            for (var i = 0; i < iotexDomainGetBalance; i++) {
+                let iotexDomainGetBalanceArray = await god.currentNetwork.execContract({
+                    address: '0x4608eF714C8047771054757409c1A451CEf8d69f',
+                    abi: iotexDomainABI,
+                    method: "tokenOfOwnerByIndex",
+                    //params: ['0xEb17b644153e222D33Ac48bfBBCB8e98F45bfa19', i]
+                    params: [god.currentNetwork.account, i]
+                })
+                getIOTEXDomainNFT(iotexDomainGetBalanceArray);
+            }
         }
 
     }
@@ -220,6 +274,32 @@ const ListforSale = observer(() => {
                 abi: marketplaceABI,
                 method: "delistNFT",
                 params: ["0x0c5AB026d74C451376A4798342a685a0e99a5bEe", delistItem]
+            })
+            let theReceipt = await theListedNFT.wait(); // to get the wait done
+            if (theReceipt.status == 1) {
+                setSpinner(false)
+                toast.success(String('Succesfully Delisted' + theReceipt.transactionHash))
+                setRefreshPage(!refreshPage)
+            }
+        }
+        catch (e) {
+            if (e.code == 4001) {
+                setSpinner(false)
+                toast.error(String(e.message))
+            }
+        }
+    }
+    const delistIotexDomainNFT = async (item) => {
+        var theItemIndex = (listIotexDomainNFT.indexOf(item));
+        var delistItem = listDomainItemID[theItemIndex];
+        setSpinner(true)
+        //var delistItem = item.toNumber()
+        try {
+            let theListedNFT = await god.currentNetwork.execContract({
+                address: '0x8b58c2225b92F3B3252B2c5860AC240dCE05172F',
+                abi: marketplaceABI,
+                method: "delistNFT",
+                params: ["0x4608eF714C8047771054757409c1A451CEf8d69f", delistItem]
             })
             let theReceipt = await theListedNFT.wait(); // to get the wait done
             if (theReceipt.status == 1) {
@@ -343,7 +423,6 @@ const ListforSale = observer(() => {
             setSpinner(true)
             try {
                 var listAmount = userPrice + '0'.repeat(18);
-                console.log(listAmount)
                 let theAddress = await god.currentNetwork.execContract({
                     address: "0x8b58c2225b92F3B3252B2c5860AC240dCE05172F",
                     abi: marketplaceABI,
@@ -360,9 +439,75 @@ const ListforSale = observer(() => {
                 if (theReceipt.status == 1) {
                     setSpinner(false)
                     toast.success(String('Succesfully Listed' + theReceipt.transactionHash))
-                    setRefreshPage(!refreshPage)
                     setFlag(0)
                     closeModal2()
+                    setRefreshPage(!refreshPage)
+                }
+            }
+            catch (e) {
+                setSpinner(false)
+                toast.error(String(e.message))
+                console.log(e)
+            }
+        }
+    }
+    const listIOTEXDomainForSale = async (item) => {
+        //marketplace-address: 0x4A115815028777F94ad07e20eED7C2ABcCa99730
+        if (flag == 0) {
+            setSpinner(true)
+            try {
+                let theApproval = await god.currentNetwork.execContract({
+                    address: "0x4608eF714C8047771054757409c1A451CEf8d69f",
+                    abi: iotexDomainABI,
+                    method: "setApprovalForAll",
+                    params: ["0x8b58c2225b92F3B3252B2c5860AC240dCE05172F", true]
+                    //params: ["0x8b58c2225b92F3B3252B2c5860AC240dCE05172F", Number(theNFT.edition)]
+                })
+
+                let theReceipt = await theApproval.wait(); // to get the wait done
+                if (theReceipt.status == 1) {
+                    let approvalStatus = await god.currentNetwork.execContract({
+                        address: "0x4608ef714c8047771054757409c1a451cef8d69f",
+                        abi: iotexDomainABI,
+                        method: "isApprovedForAll",
+                        params: [god.currentNetwork.account, "0x8b58c2225b92F3B3252B2c5860AC240dCE05172F"]
+                    })
+                    if (approvalStatus == true) {
+                        toast.success(String('Approved! Txn:' + theReceipt.transactionHash))
+                        setSpinner(false)
+                        setFlag(1)
+                    }
+
+                }
+            }
+            catch (e) {
+                setSpinner(false)
+                toast.error(String(e.message))
+                console.log(e)
+            }
+        }
+        else if (flag == 1) {
+            setSpinner(true)
+            try {
+                var listAmount = userPrice + '0'.repeat(18);
+                let theAddress = await god.currentNetwork.execContract({
+                    address: "0x8b58c2225b92F3B3252B2c5860AC240dCE05172F",
+                    abi: marketplaceABI,
+                    method: "createMarketItem",
+                    params: [
+                        "0x4608eF714C8047771054757409c1A451CEf8d69f",
+                        item.id,
+                        listAmount,
+                        "100000000000000000000"
+                    ]
+                })
+                let theReceipt = await theAddress.wait(); // to get the wait done
+                if (theReceipt.status == 1) {
+                    setSpinner(false)
+                    toast.success(String('Succesfully Listed' + theReceipt.transactionHash))
+                    setRefreshPage(!refreshPage)
+                    setFlag(0)
+                    closeModal3()
                 }
             }
             catch (e) {
@@ -388,6 +533,27 @@ const ListforSale = observer(() => {
                 name: theItemsNFT['name'],
                 image: theItemsNFT['image']
             }]))
+    }
+    const getIOTEXDomainNFT = async (item) => {
+
+        let details = await god.currentNetwork.execContract(
+            {
+                address: '0x4608eF714C8047771054757409c1A451CEf8d69f',
+                abi: iotexDomainABI,
+                method: 'tokenURI',
+                params: [String(item)]
+            })
+        API.get(details).then(res => {
+            var theNFT = res.data
+
+            setIOTEXDomain(prevState => ([
+                ...prevState, {
+                    id: String(item),
+                    name: theNFT['name'],
+                    image: theNFT['image']
+                }]))
+        })
+
     }
     const filterNFTs = async (array) => {
         array.map(async (item, index) => {
@@ -449,6 +615,7 @@ const ListforSale = observer(() => {
                             name: theItem.name,
                             dna: theItem.dna,
                             edition: theItem.edition,
+                            rewards: rarity.dividend == 25 ? '5.56' : rarity.dividend == 15 ? '0.67' : rarity.dividend == 12 ? '0.52' : rarity.dividend == 7 ? '0.27' : '0.22',
                             image: stringImage,
                             attributes: theItem.attributes,
                             dividendAmount: rarity.dividend,
@@ -532,6 +699,7 @@ const ListforSale = observer(() => {
     }
     const [modalIsOpen, setIsOpen] = useState(false);
     const [modalIsOpen2, setIsOpen2] = useState(false);
+    const [modalIsOpen3, setIsOpen3] = useState(false);
 
     function afterOpenModal() {
         // references are now sync'd and can be accessed.
@@ -553,7 +721,14 @@ const ListforSale = observer(() => {
         setMachineFiModal(item)
 
     }
+    function closeModal3() {
+        setIsOpen3(false);
+    }
+    const setModalItems3 = (item, type) => {
+        setIsOpen3(true)
+        setIotexDomainModal(item)
 
+    }
     const calculateRarity = (items, totalNFT) => {
         var avg = 10
         var theAvg = 0
@@ -632,11 +807,15 @@ const ListforSale = observer(() => {
             setSelectedNFT(1)
             setSelectedLength(machineFi.length)
         }
+        else if (filterValue === 7) {
+            setDisplayNFT(iotexDomain)
+            setSelectedNFT(2)
+            setSelectedLength(iotexDomain.length)
+        }
     }
 
     return (
         <div>
-
             {loading ? null : <div style={{ justifyItems: "center", margin: 10, width: '100%' }}>
                 <Box style={{
                     display: 'flex',
@@ -666,6 +845,17 @@ const ListforSale = observer(() => {
                         }}
                         onClick={() => changeFilter(6)}
                     >MachineFi {machineFi.length}</div> : null}
+                    {iotexDomain.length !== 0 ? <div
+                        style={{
+                            borderRadius: 12,
+                            backgroundColor: selectedNFT === 2 ? 'rgba(126,208, 123,1)' : 'rgba(126,208, 123,0.3)',
+                            color: 'rgb(60,103,89)',
+                            padding: 10,
+                            margin: 5,
+                            fontSize: 14
+                        }}
+                        onClick={() => changeFilter(7)}
+                    >IOTEX Web3 Domain {iotexDomain.length}</div> : null}
                 </Box>
 
                 {selectedNFT == 0 ? <Box style={{
@@ -744,9 +934,9 @@ const ListforSale = observer(() => {
                     >All</div>
                 </Box> : null}
             </div>}
-            <div >
+            <div>
                 <div>
-                    {!god.currentNetwork.account ? <Center>Wallet not connected</Center> : loading ? <Center>Loading</Center> : allNFT.length === 0 && machineFi.length===0? <div style={{
+                    {!god.currentNetwork.account ? <Center>Wallet not connected</Center> : loading ? <Center>Loading</Center> : allNFT.length === 0 && machineFi.length === 0 && iotexDomain.length === 0 ? <div style={{
                         padding: 10,
                         textAlign: "center"
                     }}>
@@ -856,6 +1046,50 @@ const ListforSale = observer(() => {
                                         <p>(It might take awhile because of the multiple contract verifications.)</p>
                                     </Box>
                                 </Modal>
+                                <Modal isOpen={modalIsOpen3} onAfterOpen={afterOpenModal}
+                                    ariaHideApp={false}
+                                    onRequestClose={closeModal3}
+                                    style={{
+                                        content: {
+                                            // width: '80%',
+                                            top: '50%',
+                                            left: '50%',
+                                            right: 'auto',
+                                            bottom: 'auto',
+                                            marginRight: '-20%',
+                                            transform: 'translate(-50%, -50%)',
+                                        }
+                                    }}
+                                    centered>
+                                    {/* <Box m="5" borderWidth='3px' style={{ display: "flex", flexDirection: "column" }}> */}
+                                    <Box style={{
+                                        margin: 10,
+                                        padding: 5,
+                                        paddingLeft: 20,
+                                        justifyContent: 'center',
+                                        justifyItems: 'center',
+                                        display: 'flex',
+                                        flexWrap: "wrap",
+                                        flexDirection: 'column',
+                                        maxWidth: '100%'
+                                    }}>
+                                        <h3 style={{ textAlign: 'center', fontWeight: 'bold', padding: 5 }}>{iotexDomainNFT.name}</h3>
+                                        <img src={iotexDomainNFT.image} style={{ display: 'block', marginRight: 'auto', marginLeft: 'auto' }} width={140} />
+
+
+                                    </Box>
+                                    <Box style={{ padding: 10, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                                        <p style={{ fontWeight: 'bold', marginBottom: 10 }}>List {iotexDomainNFT.name} for sale</p>
+                                        {flag == 1 ? <div><p>Price</p> <Input value={userPrice} onChange={e => setPrice((e.target.value))} color='teal' placeholder='IOTEX' variant='outline' type="number" /></div> : null}
+                                        <Button onClick={() => listIOTEXDomainForSale(iotexDomainNFT)} mt="5" bg="lightgreen" disabled={loadSpinner ? true : false}>   {loadSpinner ? <Spinner /> : null} {flag == 0 ? "Approve Item for Sale" : "List Item for SALE"}</Button>
+                                    </Box>
+                                    <Box style={{ padding: 10, fontSize: 12, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                                        <p>Please be aware that its a 2 step process to list for sale.</p>
+                                        <p>1. Approve it for marketplace to sell it.</p>
+                                        <p>2. List it for sale and wait for it to be completed.</p>
+                                        <p>(It might take awhile because of the multiple contract verifications.)</p>
+                                    </Box>
+                                </Modal>
                                 {selectedNFT == 0 ? ([...new Set(displayingNFT)]).map((item, index) => {
                                     return (
                                         <div key={item.edition} style={{
@@ -900,7 +1134,7 @@ const ListforSale = observer(() => {
                                         </div>
                                     )
                                 }
-                                ) : ([...new Set(displayingNFT)]).map((item, index) => {
+                                ) : selectedNFT == 1 ? ([...new Set(displayingNFT)]).map((item, index) => {
                                     return (
                                         <div key={item.id} style={{
                                             minWidth: 300,
@@ -935,7 +1169,41 @@ const ListforSale = observer(() => {
 
                                         </div>
                                     )
-                                })}
+                                }) : selectedNFT == 2 ? ([...new Set(displayingNFT)]).map((item, index) => {
+                                    return (
+                                        <div key={item.id} style={{
+                                            minWidth: 300,
+                                            flexDirection: "row",
+                                            justifyContent: 'center',
+                                            justifyItems: 'center',
+                                            alignItems: 'center',
+                                            margin: 10,
+                                            padding: 10,
+                                            borderWidth: 0.5,
+                                            borderStyle: 'solid',
+                                            borderColor: "grey",
+                                            borderRadius: 6
+                                        }}>
+                                            <img src={item.image} style={{ display: 'block', marginRight: 'auto', marginLeft: 'auto' }} width={220} />
+                                            <h3 style={{ fontSize: 18, marginTop: 15, textAlign: 'center' }}>{item.name}</h3>
+                                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                                {listIotexDomainNFT.includes(item.id) ? <Button bg="red"
+                                                    alignSelf={'center'}
+                                                    color="white"
+                                                    onClick={() => delistIotexDomainNFT(item.id)}
+                                                    disabled={loadSpinner && iotexDomainNFT.id == item.id ? true : false}> {loadSpinner ? <Spinner /> : null}De list {item.edition}</Button>
+                                                    :
+                                                    <Button bg="darkslateblue"
+                                                        color="white"
+                                                        onClick={() => setModalItems3(item, 1)}
+                                                        disabled={loadSpinner && iotexDomainNFT.id == item.id ? true : false}>
+                                                        List {item.name}</Button>
+                                                }
+                                            </div>
+                                        </div>
+                                    )
+                                    //to add more WHITELISTED DOMAINS
+                                }) : null}
                             </Container>
                         </Center>}
 

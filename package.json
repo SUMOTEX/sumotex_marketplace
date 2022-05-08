@@ -11,8 +11,8 @@
   ],
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
-    "export": "next build && next export",
+    "build": "GENERATE_SOURCEMAP=false next build",
+    "export": "GENERATE_SOURCEMAP=false next build && next export",
     "start": "next start",
     "test": "concurrently \"yarn start \" \"cypress open\"",
     "test:ci": "cypress run --headless"

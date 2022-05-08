@@ -4,6 +4,7 @@ import { observer, useLocalStore } from 'mobx-react-lite';
 import API from '../common/utils/API';
 import marketplaceABI from '@/constants/abi/marketplace.json';
 import machineFiABI from '@/constants/abi/machineFi.json';
+import iotexDomainABI from '@/constants/abi/iotexDomain.json';
 import erc721 from '@/constants/abi/erc721.json';
 import {
   Center, Link, Box, Spinner, Button, Accordion,
@@ -46,13 +47,21 @@ const Home = observer(() => {
   const [mfloorPrice, setMFloorPrice] = useState(0);
   const [mhighestPrice, setMHighestPrice] = useState(0);
   const [mvolume, setMVolume] = useState(0);
+  //IOTEXDOMAIN SUMMARY
+  const [dtotalNFT, setdTotalNFT] = useState(0);
+  const [dsoldNFT, setdSoldNFT] = useState(0);
+  const [dfloorPrice, setdFloorPrice] = useState(0);
+  const [dhighestPrice, setdHighestPrice] = useState(0);
+  const [dvolume, setdVolume] = useState(0);
 
   const [machineFi, setMachineFiNFT] = useState([]);
+  const [iotexDomain, setIotexDomainNFT] = useState([]);
   const [boughtNFT, setBoughtNFT] = useState(false);
   const [loadSpinner, setSpinner] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState(0);
   const [theModalNFT, setModalNFT] = useState({ image: '', name: '', edition: '', dividendAmount: '', price: '', itemId: '' });
   const [machineFiNFT, setMachineFiModal] = useState({ id: '', image: '', name: '', itemID: '', price: '' });
+  const [iotexDomainNFT, setIotexDomainModal] = useState({ id: '', image: '', name: '', itemID: '', price: '' })
   const [displayingNFT, setDisplayNFT] = useState([]);
   const [allNFT, setAllNFT] = useState([]);
   const [emperor, setEmperor] = useState([]);
@@ -99,14 +108,14 @@ const Home = observer(() => {
     });
     theInitialFunction();
     machineFiFilter();
+    iotexDomainFilter();
     //getPricing();
   }, [boughtNFT]);
 
   const [modalIsOpen, setIsOpen] = useState(false);
   const [modalIsOpen2, setIsOpen2] = useState(false);
+  const [modalIsOpen3, setIsOpen3] = useState(false);
   function afterOpenModal() {
-    // references are now sync'd and can be accessed.
-    //
   }
   function closeModal() {
     setIsOpen(false);
@@ -121,6 +130,13 @@ const Home = observer(() => {
   const setModalItems2 = (item, type) => {
     setIsOpen2(true)
     setMachineFiModal(item)
+  }
+  function closeModal3() {
+    setIsOpen3(false);
+  }
+  const setModalItems3 = (item, type) => {
+    setIsOpen3(true)
+    setIotexDomainModal(item)
 
   }
   const theInitialFunction = async () => {
@@ -133,14 +149,17 @@ const Home = observer(() => {
     })
     if (theAddress instanceof Array) {
       var theArray = theAddress.filter(function (item) {
-        return (item['tokenId']).toNumber() !== 0;
+        return (item['nftContract']) == '0x9756E951dd76e933e34434Db4Ed38964951E588b';
+        
       })
       var theArray2 = theArray.filter(function (item) {
         return (item['sold']) != true;
       })
       var theArray3 = theArray2.filter(function (item) {
-        return (item['nftContract']) == '0x9756E951dd76e933e34434Db4Ed38964951E588b';
+        return (item['tokenId']).toNumber() !== 0;
+
       })
+      console.log(theArray3)
       var theArray4 = _.uniqBy(theArray3, 'tokenId')
       var soldArray = theArray.filter(function (item) {
         return (item['sold']) == true;
@@ -187,12 +206,15 @@ const Home = observer(() => {
       method: "fetchMarketItems",
       params: []
     })
+    
     if (theAddress instanceof Array) {
       var theArray = theAddress.filter(function (item) {
-        return (item['tokenId']).toNumber() !== 0;
+        return (item['nftContract']) == "0x0c5AB026d74C451376A4798342a685a0e99a5bEe"
+       
       })
       var theArray2 = theArray.filter(function (item) {
-        return (item['nftContract']) == "0x0c5AB026d74C451376A4798342a685a0e99a5bEe"
+        return (item['tokenId']).toNumber() !== 0;
+       
       })
       var theArray3 = theArray2.filter(function (item) {
         return (item['sold']) == false;
@@ -265,6 +287,93 @@ const Home = observer(() => {
     }
 
   }
+  const iotexDomainFilter = async () => {
+    let theAddress = await god.currentNetwork.execContract({
+      address: '0x8b58c2225b92F3B3252B2c5860AC240dCE05172F',
+      abi: marketplaceABI,
+      method: "fetchMarketItems",
+      params: []
+    })
+    
+    if (theAddress instanceof Array) {
+      var theArray = theAddress.filter(function (item) {
+        return (item['nftContract']) == "0x4608eF714C8047771054757409c1A451CEf8d69f"
+       
+      })
+      
+      var theArray2 = theArray.filter(function (item) {
+        return ((item['tokenId'])) !== 0;
+      })
+      var theArray3 = theArray2.filter(function (item) {
+        return (item['sold']) == false;
+      })
+      //summary section for iotexDomain
+      var soldArray = theArray2.filter(function (item) {
+        return (item['sold']) == true;
+      })
+      var totalSoldVolume = 0
+      soldArray.map((item, index) => {
+        var theItem = (Web3.utils.fromWei(String(Web3.utils.toBN(item['price'])), 'ether'))
+        totalSoldVolume += Number((theItem))
+        //console.log(totalSoldVolume.toString())
+      })
+      //getFloorPrice
+      var thefloorPrice = 0
+      if (theArray3.length != 0) {
+        thefloorPrice = Number(Web3.utils.fromWei(String(theArray3[0]['price']), 'ether'))
+        theArray3.map((item, index) => {
+          var theItem = Number(Web3.utils.fromWei(String((item['price'])), 'ether'))
+          if (thefloorPrice >= theItem) {
+            thefloorPrice = theItem
+          }
+        })
+      }
+      //getCeilingPrice
+      var theCeilingPrice = 0
+      if (soldArray.length != 0) {
+        theCeilingPrice = Number(Web3.utils.fromWei(String(soldArray[0]['price']), 'ether'))
+        soldArray.map((item, index) => {
+          var theItem = Number(Web3.utils.fromWei(String((item['price'])), 'ether'))
+          if (theCeilingPrice <= theItem) {
+            theCeilingPrice = theItem
+          }
+        })
+      }
+      setdTotalNFT(theArray3.length)
+      setdVolume(totalSoldVolume);
+      setdFloorPrice(thefloorPrice);
+      setdHighestPrice(theCeilingPrice);
+      setdSoldNFT(soldArray.length);
+
+      theArray3.map(async (item, index) => {
+        var ownerAdd = (item['owner']).toString()
+        var theItemID = String(item['tokenId'])
+        var itemID = (item['itemId']).toNumber()
+        var BNtotalCostWei = Web3.utils.fromWei((item['price']).toString(), 'ether')
+        var thePrice = (BNtotalCostWei)
+        let details = await god.currentNetwork.execContract(
+          {
+            address: '0x4608eF714C8047771054757409c1A451CEf8d69f',
+            abi: iotexDomainABI,
+            method: 'tokenURI',
+            params: [theItemID]
+          })
+        API.get(details).then(res => {
+          var theNFT = res.data
+          setIotexDomainNFT(prevState => ([
+            ...prevState, {
+              id: theItemID,
+              ownerID: ownerAdd,
+              itemID: itemID,
+              name: theNFT['name'],
+              price: Number(thePrice),
+              image: theNFT['image']
+            }]))
+        })
+      })
+    }
+
+  }
   const buyNFT = async (itemID, theValue) => {
     let totalGasLimit = String(250111);
     setSpinner(true)
@@ -316,7 +425,32 @@ const Home = observer(() => {
       }
     }
   }
+  const buyIotexDomain = async (itemID, theValue) => {
+    let totalGasLimit = String(250111);
+    setSpinner(true)
+    //0x8b58c2225b92F3B3252B2c5860AC240dCE05172F
+    try {
+      let theAddress = await god.currentNetwork.execContract({
+        address: '0x8b58c2225b92F3B3252B2c5860AC240dCE05172F',
+        abi: marketplaceABI,
+        method: "createMarketSale",
+        params: ['0x4608eF714C8047771054757409c1A451CEf8d69f', String(itemID)],
+        options: { value: String(theValue) + '0'.repeat(18), gasLimit: totalGasLimit }
+      })
 
+      let theReceipt = await theAddress.wait(); // to get the wait done
+      if (theReceipt.status == 1) {
+        setSpinner(false)
+        setBoughtNFT(!boughtNFT)
+        toast.success(String('Succesfully Purchased' + theReceipt.transactionHash))
+      }
+    } catch (error) {
+      if (error.code == 4001) {
+        setSpinner(false)
+        toast.error(String(error.message))
+      }
+    }
+  }
 
   const filterNFTs = async (array) => {
     array.map(async (item, index) => {
@@ -530,6 +664,7 @@ const Home = observer(() => {
     }
     else if (filterValue === 1) {
       let gfg = _.orderBy(emperor, ['price'], ['asc']);
+      console.log(gfg)
       setDisplayNFT(gfg)
       setSelectedFilter(1)
     }
@@ -553,6 +688,7 @@ const Home = observer(() => {
     }
     else if (filterValue === 5) {
       let gfg = _.orderBy(minion, ['price'], ['asc']);
+      console.log(gfg)
       setDisplayNFT(gfg)
       setSelectedFilter(5)
     }
@@ -582,6 +718,10 @@ const Home = observer(() => {
       //highest
       setDisplayNFT(machineFi)
       setSelectedNFT(1)
+    }
+    else if (filterValue === 9) {
+      setDisplayNFT(iotexDomain)
+      setSelectedNFT(2)
     }
   }
   return (
@@ -616,6 +756,17 @@ const Home = observer(() => {
             }}
             onClick={() => changeFilter(8)}
           >MachineFi {machineFi.length}</div> : null}
+           {iotexDomain.length !== 0 ? <div
+            style={{
+              borderRadius: 12,
+              backgroundColor: selectedNFT === 2 ? 'rgba(126,208, 123,1)' : 'rgba(126,208, 123,0.3)',
+              color: 'rgb(60,103,89)',
+              padding: 10,
+              margin: 5,
+              fontSize: 14
+            }}
+            onClick={() => changeFilter(9)}
+          >IotexDomain {iotexDomain.length}</div> : null}
         </Box>
         {selectedNFT == 0 ? <Box style={{
           display: 'flex',
@@ -648,7 +799,7 @@ const Home = observer(() => {
             w={["80%", "80%", "20%", "18%"]} p="4" m="2" borderWidth='2px' borderColor="green" borderRadius='lg' >
             <h4 style={{ fontSize: 16, fontWeight: 'bold', color: "green" }}>Volume: {(volume).toLocaleString(navigator.language, { minimumFractionDigits: 0 })} iotex</h4>
           </Box>
-        </Box> : <Box style={{
+        </Box> :selectedNFT==1? <Box style={{
           display: 'flex',
           justifyContent: 'center',
           flexWrap: "wrap",
@@ -678,7 +829,37 @@ const Home = observer(() => {
             w={["80%", "80%", "20%", "18%"]} p="4" m="2" borderWidth='2px' borderColor="rebeccapurple" borderRadius='lg' >
             <h4 style={{ fontSize: 16, fontWeight: 'bold', color: "rebeccapurple" }}>Volume: {(mvolume).toLocaleString(navigator.language, { minimumFractionDigits: 0 })} iotex</h4>
           </Box>
-        </Box>}
+        </Box>:selectedNFT==2? <Box style={{
+          display: 'flex',
+          justifyContent: 'center',
+          flexWrap: "wrap",
+          flexDirection: 'row', minHeight: 20
+        }}>
+          <Toaster
+            position="top-right"
+            reverseOrder={false}
+          />
+          <Box
+            w={["80%", "80%", "20%", "18%"]} p="4" m="2" borderWidth='2px' borderColor="cadetblue" borderRadius='lg' >
+            <h4 style={{ fontSize: 16, fontWeight: 'bold', color: "cadetblue" }}>Iotex Web3 Domain for sale: {dtotalNFT}</h4>
+          </Box>
+          <Box
+            w={["80%", "80%", "20%", "18%"]} p="4" m="2" borderWidth='2px' borderColor="cadetblue" borderRadius='lg' >
+            <h4 style={{ fontSize: 16, fontWeight: 'bold', color: "cadetblue" }}>Sold NFT: {dsoldNFT}</h4>
+          </Box>
+          <Box
+            w={["80%", "80%", "20%", "18%"]} p="4" m="2" borderWidth='2px' borderColor="cadetblue" borderRadius='lg' >
+            <h4 style={{ fontSize: 16, fontWeight: 'bold', color: "cadetblue" }}>Floor Price: {(dfloorPrice)} iotex</h4>
+          </Box>
+          <Box
+            w={["80%", "80%", "20%", "18%"]} p="4" m="2" borderWidth='2px' borderColor="cadetblue" borderRadius='lg' >
+            <h4 style={{ fontSize: 16, fontWeight: 'bold', color: "cadetblue" }}>Highest Sold Price: {(dhighestPrice).toLocaleString(navigator.language, { minimumFractionDigits: 0 })} iotex</h4>
+          </Box>
+          <Box
+            w={["80%", "80%", "20%", "18%"]} p="4" m="2" borderWidth='2px' borderColor="cadetblue" borderRadius='lg' >
+            <h4 style={{ fontSize: 16, fontWeight: 'bold', color: "cadetblue" }}>Volume: {(dvolume).toLocaleString(navigator.language, { minimumFractionDigits: 0 })} iotex</h4>
+          </Box>
+        </Box>:null}
         {selectedNFT == 0 ? <Box style={{
           display: 'flex',
           justifyContent: 'center',
@@ -879,6 +1060,43 @@ const Home = observer(() => {
                       mt="5" bg="lightgreen" disabled={loadSpinner ? true : false}> {loadSpinner ? <Spinner /> : null} {'BUY NOW'}</Button>}
                 </Box>
               </Modal>
+              <Modal isOpen={modalIsOpen3} onAfterOpen={afterOpenModal}
+                ariaHideApp={false}
+                onRequestClose={closeModal3}
+                style={{
+                  content: {
+                    // width: '80%',
+                    top: '50%',
+                    left: '50%',
+                    right: 'auto',
+                    bottom: 'auto',
+                    marginRight: '-20%',
+                    transform: 'translate(-50%, -50%)',
+                  }
+                }}
+                centered>
+                {/* <Box m="5" borderWidth='3px' style={{ display: "flex", flexDirection: "column" }}> */}
+                <Box style={{
+                  margin: 10,
+                  padding: 5,
+                  paddingLeft: 20,
+                  justifyContent: 'center',
+                  justifyItems: 'center',
+                  display: 'flex',
+                  flexWrap: "wrap",
+                  flexDirection: 'column',
+                  maxWidth: '100%'
+                }}>
+                  <h3 style={{ textAlign: 'center', fontWeight: 'bold', padding: 5 }}>{iotexDomainNFT.name}</h3>
+                  <img src={iotexDomainNFT.image} style={{ display: 'block', marginRight: 'auto', marginLeft: 'auto' }} width={140} />
+                </Box>
+                <Box style={{ textAlign: 'center' }}>
+                  <p style={{ fontSize: 22, fontWeight: 'bold', color: 'green' }}>Price {iotexDomainNFT.price} IOTEX</p>
+                  {boughtNFT ? <p>Succesfully purchased!</p> :
+                    <Button onClick={() => buyIotexDomain(iotexDomainNFT.itemID, iotexDomainNFT.price)}
+                      mt="5" bg="lightgreen" disabled={loadSpinner ? true : false}> {loadSpinner ? <Spinner /> : null} {'BUY NOW'}</Button>}
+                </Box>
+              </Modal>
               {selectedNFT == 0 ? ([...new Set(displayingNFT)]).map((item, index) => {
                 return (
                   <div key={item.edition} style={{
@@ -928,7 +1146,7 @@ const Home = observer(() => {
                   </div>
                 )
               }
-              ) : ([...new Set(displayingNFT)]).map((item, index) => {
+              ) :selectedNFT==1? ([...new Set(displayingNFT)]).map((item, index) => {
                 return (
                   <div key={item.id} style={{
                     minWidth: 300,
@@ -954,7 +1172,32 @@ const Home = observer(() => {
                     </div>
                   </div>
                 )
-              })}
+              }):selectedNFT==2? ([...new Set(displayingNFT)]).map((item, index) => {
+                return (
+                  <div key={item.id} style={{
+                    minWidth: 300,
+                    flexDirection: "row",
+                    justifyContent: 'center',
+                    justifyItems: 'center',
+                    alignItems: 'center',
+                    margin: 10,
+                    padding: 10,
+                    borderWidth: 0.5,
+                    borderStyle: 'solid',
+                    borderColor: "grey",
+                    borderRadius: 6
+                  }}>
+                    <img src={item.image} style={{ display: 'block', marginRight: 'auto', marginLeft: 'auto' }} width={220} />
+                    <h3 style={{ fontSize: 24, marginTop: 15, textAlign: 'center' }}>{item.name}</h3>
+                    <p style={{ textAlign: 'center', fontSize: 18, marginTop: 15, fontWeight: 'bold', color: "green" }}>{Number(item.price).toLocaleString(navigator.language, { minimumFractionDigits: 0 })} IOTEX</p>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      {!god.currentNetwork.account ? <p>Connect your wallet to purchase.</p> : item.ownerID == god.currentNetwork.account ? null : <Box onClick={() => setModalItems3(item, 1)} as='button' borderRadius='md' mt="3" bg='green' color='white' minWidth={110} px={4} h={8}>
+                        <p style={{ fontSize: 16, fontWeight: 'bold' }}>BUY</p>
+                      </Box>}
+                    </div>
+                  </div>
+                )
+              }):null}
             </div>
           }
         </div>
