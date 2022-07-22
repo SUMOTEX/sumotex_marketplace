@@ -102,22 +102,24 @@ const Home = observer(() => {
         msgApprove: true ? lang.t('connected') : lang.t('invalid.input')
       };
     },
-
   }));
   useEffect(() => {
     setBoughtNFT(false)
   }, [])
   useEffect(() => {
     eventBus.on('chain.switch', () => {
+      
 
     });
     const loadFunctionInAsync = () => {
       theInitialFunction();
-      machineFiFilter();
-      iotexDomainFilter();
-      knowNFTFilter();
+      //knowNFTFilter();
+      // machineFiFilter();
+      // iotexDomainFilter();
+
     }
     loadFunctionInAsync();
+    
     //getPricing();
   }, [boughtNFT]);
 
@@ -154,21 +156,41 @@ const Home = observer(() => {
   }
   const setModalItems4 = (item, type) => {
     setIsOpen4(true)
-    setIotexDomainModal(item)
-
+    setKnowNFTModal(item)
   }
   const theInitialFunction = async () => {
     //console.log(god.currentChain.chainId,god.currentChain.Coin)
-    let theAddress = await god.currentNetwork.execContract({
-      address: '0x8b58c2225b92F3B3252B2c5860AC240dCE05172F',
-      abi: marketplaceABI,
-      method: "fetchMarketItems",
-      params: []
-    })
-    if (theAddress instanceof Array) {
-      var theArray = theAddress.filter(function (item) {
+    var theArray=[]
+    var theAddress2=[]
+    var untryArray=[]
+    for (let i = 1; i < 4200; i++) {
+      theArray.push(i)
+    }
+    const responses = await Promise.allSettled(
+      theArray.map(async id => {
+        let theAddress1 = await god.currentNetwork.execContract({
+          address: '0x8b58c2225b92F3B3252B2c5860AC240dCE05172F',
+          abi: marketplaceABI,
+          method: "fetchMarketItem",
+          params: [id]
+        })
+        theAddress2.push(theAddress1)
+        untryArray.push(id)
+      })
+    )
+    // let theAddress2= await god.currentNetwork.execContract({
+    //   address: '0x7C3CaCc88e469ED9365FeDe9426E947A985ae495',
+    //   abi: marketplaceABI,
+    //   method: "fetchMarketItems",
+    //   params: []
+    // })
+    console.log(theAddress2)
+    knowNFTFilter(theAddress2)
+    machineFiFilter(theAddress2);
+    iotexDomainFilter(theAddress2);
+    if (theAddress2 instanceof Array) {
+      var theArray = theAddress2.filter(function (item) {
         return (item['nftContract']) == '0x9756E951dd76e933e34434Db4Ed38964951E588b';
-
       })
       var theArray2 = theArray.filter(function (item) {
         return (item['sold']) != true;
@@ -178,13 +200,15 @@ const Home = observer(() => {
 
       })
       var theArray4 = _.uniqBy(theArray3, 'tokenId')
-      var soldArray = theArray.filter(function (item) {
+      var theArray4 = _.uniqBy(theArray4, 'itemId')
+      var soldArray = theAddress2.filter(function (item) {
         return (item['sold']) == true;
       })
-      setSoldNFT(soldArray.length)
+      setSoldNFT(soldArray.length +571) //SOLD on OLD contract = 571
       setTotalNFT(theArray4.length)
       filterNFTs(theArray4)
-      var totalSoldVolume = 0
+      setLoading(false)
+      var totalSoldVolume = 929607
       soldArray.map((item, index) => {
         var theItem = (Web3.utils.fromWei(String(Web3.utils.toBN(item['price'])), 'ether'))
         totalSoldVolume += Number((theItem))
@@ -202,7 +226,7 @@ const Home = observer(() => {
         })
         setFloorPrice(thefloorPrice);
       }
-      var theCeilingPrice = 0
+      var theCeilingPrice = 14500
       if (soldArray.length != 0) {
         theCeilingPrice = Number(Web3.utils.fromWei(String(soldArray[0]['price']), 'ether'))
         soldArray.map((item, index) => {
@@ -212,23 +236,18 @@ const Home = observer(() => {
           }
         })
         setHighestPrice(theCeilingPrice);
+      }else{
+        setHighestPrice(theCeilingPrice);
       }
     }
-    setLoading(false)
   }
-  const machineFiFilter = async () => {
-    let theAddress = await god.currentNetwork.execContract({
-      address: '0x8b58c2225b92F3B3252B2c5860AC240dCE05172F',
-      abi: marketplaceABI,
-      method: "fetchMarketItems",
-      params: []
-    })
-
+  const machineFiFilter = async (theAddress) => {
     if (theAddress instanceof Array) {
       var theArray = theAddress.filter(function (item) {
         return (item['nftContract']) == "0x0c5AB026d74C451376A4798342a685a0e99a5bEe"
 
       })
+     
       var theArray2 = theArray.filter(function (item) {
         return (item['tokenId']).toNumber() !== 0;
 
@@ -241,7 +260,7 @@ const Home = observer(() => {
       var soldArray = theArray2.filter(function (item) {
         return (item['sold']) == true;
       })
-      var totalSoldVolume = 0
+      var totalSoldVolume = 356685 //356,685 IOTX
       soldArray.map((item, index) => {
         var theItem = (Web3.utils.fromWei(String(Web3.utils.toBN(item['price'])), 'ether'))
         totalSoldVolume += Number((theItem))
@@ -259,7 +278,7 @@ const Home = observer(() => {
         })
       }
       //getCeilingPrice
-      var theCeilingPrice = 0
+      var theCeilingPrice = 3000
       if (soldArray.length != 0) {
         theCeilingPrice = Number(Web3.utils.fromWei(String(soldArray[0]['price']), 'ether'))
         soldArray.map((item, index) => {
@@ -270,10 +289,10 @@ const Home = observer(() => {
         })
       }
       setMTotalNFT(theArray3.length)
-      setMVolume(totalSoldVolume);
-      setMFloorPrice(thefloorPrice);
+      setMVolume(totalSoldVolume); //356,685 IOTX
+      setMFloorPrice(thefloorPrice); 
       setMHighestPrice(theCeilingPrice);
-      setMSoldNFT(soldArray.length);
+      setMSoldNFT(soldArray.length+268); //268
 
       theArray3.map(async (item, index) => {
         var ownerAdd = (item['owner']).toString()
@@ -304,20 +323,11 @@ const Home = observer(() => {
     }
 
   }
-  const iotexDomainFilter = async () => {
-    let theAddress = await god.currentNetwork.execContract({
-      address: '0x8b58c2225b92F3B3252B2c5860AC240dCE05172F',
-      abi: marketplaceABI,
-      method: "fetchMarketItems",
-      params: []
-    })
-
+  const iotexDomainFilter = async (theAddress) => {
     if (theAddress instanceof Array) {
       var theArray = theAddress.filter(function (item) {
         return (item['nftContract']) == "0x4608eF714C8047771054757409c1A451CEf8d69f"
-
       })
-
       var theArray2 = theArray.filter(function (item) {
         return ((item['tokenId'])) !== 0;
       })
@@ -328,7 +338,7 @@ const Home = observer(() => {
       var soldArray = theArray2.filter(function (item) {
         return (item['sold']) == true;
       })
-      var totalSoldVolume = 0
+      var totalSoldVolume = 15019
       soldArray.map((item, index) => {
         var theItem = (Web3.utils.fromWei(String(Web3.utils.toBN(item['price'])), 'ether'))
         totalSoldVolume += Number((theItem))
@@ -346,7 +356,7 @@ const Home = observer(() => {
         })
       }
       //getCeilingPrice
-      var theCeilingPrice = 0
+      var theCeilingPrice = 5000
       if (soldArray.length != 0) {
         theCeilingPrice = Number(Web3.utils.fromWei(String(soldArray[0]['price']), 'ether'))
         soldArray.map((item, index) => {
@@ -357,10 +367,10 @@ const Home = observer(() => {
         })
       }
       setdTotalNFT(theArray3.length)
-      setdVolume(totalSoldVolume);
+      setdVolume(totalSoldVolume); //15019
       setdFloorPrice(thefloorPrice);
-      setdHighestPrice(theCeilingPrice);
-      setdSoldNFT(soldArray.length);
+      setdHighestPrice(theCeilingPrice); //5000
+      setdSoldNFT(soldArray.length+15); //13
 
       theArray3.map(async (item, index) => {
         var ownerAdd = (item['owner']).toString()
@@ -391,20 +401,18 @@ const Home = observer(() => {
     }
 
   }
-  const knowNFTFilter = async () => {
-    let theAddress = await god.currentNetwork.execContract({
-      address: '0x8b58c2225b92F3B3252B2c5860AC240dCE05172F',
-      abi: marketplaceABI,
-      method: "fetchMarketItems",
-      params: []
-    })
-
+  const knowNFTFilter = async (theAddress) => {
+    // let theAddress = await god.currentNetwork.execContract({
+    //   address: '0x7C3CaCc88e469ED9365FeDe9426E947A985ae495',
+    //   abi: marketplaceABI,
+    //   method: "fetchMarketItems",
+    //   params: []
+    // })
     if (theAddress instanceof Array) {
       var theArray = theAddress.filter(function (item) {
         return (item['nftContract']) == "0xf129A758650A340958AEc74afc2E8D1E52180290"
 
       })
-      console.log(Number(theArray[0]['itemId']))
       var theArray2 = theArray.filter(function (item) {
         return ((item['tokenId'])) !== 0;
       })
@@ -415,7 +423,7 @@ const Home = observer(() => {
       var soldArray = theArray2.filter(function (item) {
         return (item['sold']) == true;
       })
-      var totalSoldVolume = 0
+      var totalSoldVolume = 93886
       soldArray.map((item, index) => {
         var theItem = (Web3.utils.fromWei(String(Web3.utils.toBN(item['price'])), 'ether'))
         totalSoldVolume += Number((theItem))
@@ -433,7 +441,7 @@ const Home = observer(() => {
         })
       }
       //getCeilingPrice
-      var theCeilingPrice = 0
+      var theCeilingPrice = 8888
       if (soldArray.length != 0) {
         theCeilingPrice = Number(Web3.utils.fromWei(String(soldArray[0]['price']), 'ether'))
         soldArray.map((item, index) => {
@@ -444,10 +452,10 @@ const Home = observer(() => {
         })
       }
       setkTotalNFT(theArray3.length)
-      setkVolume(totalSoldVolume);
+      setkVolume(totalSoldVolume); //93,886 IOTX
       setkFloorPrice(thefloorPrice);
-      setkHighestPrice(theCeilingPrice);
-      setkSoldNFT(soldArray.length);
+      setkHighestPrice(theCeilingPrice); //8,888 IOTX
+      setkSoldNFT(soldArray.length+82); //82
 
       theArray3.map(async (item, index) => {
         var ownerAdd = (item['owner']).toString()
@@ -462,12 +470,13 @@ const Home = observer(() => {
             method: 'tokenURI',
             params: [theItemID]
           })
+
         API.get(details).then(res => {
-          var theNFT = res.data
+          //var theNFT = JSON.parse(String(res.data))
           let theRemovedString = (res.data).trim().replace(/("|{|}\r\n|\n|\r)/gm, "");
           let theVariable = (theRemovedString.split(','))
-          let name=(theVariable[0].split(':')[1])
-          let image=(theVariable[2].split(':').slice(1).join(':'))
+          let name = (theVariable[0].split(':')[1])
+          let image = (theVariable[2].split(':').slice(1).join(':'))
           setKnowNFT(prevState => ([
             ...prevState, {
               id: theItemID,
@@ -485,10 +494,10 @@ const Home = observer(() => {
   const buyNFT = async (itemID, theValue) => {
     let totalGasLimit = String(250111);
     setSpinner(true)
-    //0x8b58c2225b92F3B3252B2c5860AC240dCE05172F
+    //0x7C3CaCc88e469ED9365FeDe9426E947A985ae495
     try {
       let theAddress = await god.currentNetwork.execContract({
-        address: '0x8b58c2225b92F3B3252B2c5860AC240dCE05172F',
+        address: '0x7C3CaCc88e469ED9365FeDe9426E947A985ae495',
         abi: marketplaceABI,
         method: "createMarketSale",
         params: ['0x9756E951dd76e933e34434Db4Ed38964951E588b', String(itemID)],
@@ -510,10 +519,10 @@ const Home = observer(() => {
   const buyMachineFi = async (itemID, theValue) => {
     let totalGasLimit = String(250111);
     setSpinner(true)
-    //0x8b58c2225b92F3B3252B2c5860AC240dCE05172F
+    //0x7C3CaCc88e469ED9365FeDe9426E947A985ae495
     try {
       let theAddress = await god.currentNetwork.execContract({
-        address: '0x8b58c2225b92F3B3252B2c5860AC240dCE05172F',
+        address: '0x7C3CaCc88e469ED9365FeDe9426E947A985ae495',
         abi: marketplaceABI,
         method: "createMarketSale",
         params: ['0x0c5AB026d74C451376A4798342a685a0e99a5bEe', String(itemID)],
@@ -536,10 +545,10 @@ const Home = observer(() => {
   const buyIotexDomain = async (itemID, theValue) => {
     let totalGasLimit = String(250111);
     setSpinner(true)
-    //0x8b58c2225b92F3B3252B2c5860AC240dCE05172F
+    //0x7C3CaCc88e469ED9365FeDe9426E947A985ae495
     try {
       let theAddress = await god.currentNetwork.execContract({
-        address: '0x8b58c2225b92F3B3252B2c5860AC240dCE05172F',
+        address: '0x7C3CaCc88e469ED9365FeDe9426E947A985ae495',
         abi: marketplaceABI,
         method: "createMarketSale",
         params: ['0x4608eF714C8047771054757409c1A451CEf8d69f', String(itemID)],
@@ -562,10 +571,10 @@ const Home = observer(() => {
   const buyKnowNFT = async (itemID, theValue) => {
     let totalGasLimit = String(250111);
     setSpinner(true)
-    //0x8b58c2225b92F3B3252B2c5860AC240dCE05172F
+    //0x7C3CaCc88e469ED9365FeDe9426E947A985ae495
     try {
       let theAddress = await god.currentNetwork.execContract({
-        address: '0x8b58c2225b92F3B3252B2c5860AC240dCE05172F',
+        address: '0x7C3CaCc88e469ED9365FeDe9426E947A985ae495',
         abi: marketplaceABI,
         method: "createMarketSale",
         params: ['0xf129A758650A340958AEc74afc2E8D1E52180290', String(itemID)],
@@ -586,8 +595,18 @@ const Home = observer(() => {
     }
   }
 
+
   const filterNFTs = async (array) => {
+    let promises = []
     array.map(async (item, index) => {
+      promises.push(sumoFilter(item))
+    })
+    return Promise.all(promises).then(values => {
+      //console.log(values)
+    })
+  }
+  const sumoFilter = (item) => {
+    return new Promise((resolve, reject) => {
       var ownerAdd = (item['owner']).toString()
       var tokenID = (item['tokenId']).toNumber()
       var itemID = (item['itemId']).toNumber()
@@ -737,15 +756,14 @@ const Home = observer(() => {
             mintedDate: theDate
           }
         ]))
-
+        resolve('DONE')
       }).catch(error => {
         toast.error(String(error))
-
+        resolve('error')
       })
-    });
-    changeFilter(0)
-    //setAllNFT([])
-  }
+      changeFilter(0)
+      //setAllNFT([])
+    })}
 
 
   const calculateRarity = (items, totalNFT) => {
@@ -851,13 +869,16 @@ const Home = observer(() => {
     else if (filterValue === 8) {
       //highest
       setDisplayNFT(machineFi)
+      console.log(machineFi)
       setSelectedNFT(1)
     }
     else if (filterValue === 9) {
       setDisplayNFT(iotexDomain)
+      console.log(iotexDomain)
       setSelectedNFT(2)
     }
     else if (filterValue === 10) {
+      console.log(knowToEarn)
       setDisplayNFT(knowToEarn)
       setSelectedNFT(3)
     }
@@ -1038,7 +1059,7 @@ const Home = observer(() => {
             w={["80%", "80%", "20%", "18%"]} p="4" m="2" borderWidth='2px' borderColor="cadetblue" borderRadius='lg' >
             <h4 style={{ fontSize: 16, fontWeight: 'bold', color: "cadetblue" }}>Volume: {(kvolume).toLocaleString(navigator.language, { minimumFractionDigits: 0 })} IOTX</h4>
           </Box>
-        </Box>:null}
+        </Box> : null}
         {selectedNFT == 0 ? <Box style={{
           display: 'flex',
           justifyContent: 'center',
@@ -1145,14 +1166,15 @@ const Home = observer(() => {
       </div>}
       <div >
         <div>
-          {loading ? <Center>Loading</Center> : allNFT.length === 0 ? <div style={{
-            padding: 5,
-            textAlign: "center"
-          }}>
-            <Center style={{ display: 'flex', flexDirection: "row", margin: 20, flexWrap: "wrap", maxWidth: '100%' }}>
-              <p>No NFT for SALE. Please come again.</p>
-            </Center>
-          </div> :
+          {loading ? <Center>Loading...hold on for awhile</Center> : 
+          // allNFT.length === 0 ? <div style={{
+          //   padding: 5,
+          //   textAlign: "center"
+          // }}>
+          //   <Center style={{ display: 'flex', flexDirection: "row", margin: 20, flexWrap: "wrap", maxWidth: '100%' }}>
+          //     <p>Loading...</p>
+          //   </Center>
+          // </div> :
             <div
               style={{
                 margin: 5,
@@ -1189,7 +1211,7 @@ const Home = observer(() => {
                   maxWidth: '100%'
                 }}>
                   <h3 style={{ fontSize: 20, textAlign: 'center', fontWeight: 'bold', padding: 5 }}>{theModalNFT.name}</h3>
-                  <img src={theModalNFT.image} style={{ display: 'block', marginRight: 'auto', marginLeft: 'auto' }} width={160} />
+                  <img src={theModalNFT.image} style={{ display: 'block', marginRight: 'auto', marginLeft: 'auto' }} width={600} />
                   <p style={{ textAlign: 'center', fontWeight: 'bold', padding: 5 }}>ID: {theModalNFT.edition}</p>
                   <p style={{ textAlign: 'center', fontSize: 18, fontWeight: 'bold', padding: 5 }}>APY: {theModalNFT.dividendAmount}%</p>
                 </Box>
@@ -1210,7 +1232,7 @@ const Home = observer(() => {
                     left: '50%',
                     right: 'auto',
                     bottom: 'auto',
-                    marginRight: '-20%',
+                    marginRight: '-50%',
                     transform: 'translate(-50%, -50%)',
                   }
                 }}
@@ -1228,7 +1250,7 @@ const Home = observer(() => {
                   maxWidth: '100%'
                 }}>
                   <h3 style={{ textAlign: 'center', fontWeight: 'bold', padding: 5 }}>{machineFiNFT.name}</h3>
-                  <img src={machineFiNFT.image} style={{ display: 'block', marginRight: 'auto', marginLeft: 'auto' }} width={140} />
+                  <img src={machineFiNFT.image} style={{ display: 'block', marginRight: 'auto', marginLeft: 'auto' }} width={600} />
 
                   <p style={{ textAlign: 'center', fontWeight: 'bold', padding: 5 }}>ID: {machineFiNFT.id}</p>
                 </Box>
@@ -1249,7 +1271,7 @@ const Home = observer(() => {
                     left: '50%',
                     right: 'auto',
                     bottom: 'auto',
-                    marginRight: '-20%',
+                    marginRight: '-50%',
                     transform: 'translate(-50%, -50%)',
                   }
                 }}
@@ -1267,7 +1289,7 @@ const Home = observer(() => {
                   maxWidth: '100%'
                 }}>
                   <h3 style={{ textAlign: 'center', fontWeight: 'bold', padding: 5 }}>{iotexDomainNFT.name}</h3>
-                  <img src={iotexDomainNFT.image} style={{ display: 'block', marginRight: 'auto', marginLeft: 'auto' }} width={140} />
+                  <img src={iotexDomainNFT.image} style={{ display: 'block', marginRight: 'auto', marginLeft: 'auto' }} width={600} />
                 </Box>
                 <Box style={{ textAlign: 'center' }}>
                   <p style={{ fontSize: 22, fontWeight: 'bold', color: 'green' }}>Price {iotexDomainNFT.price} IOTX</p>
@@ -1286,7 +1308,7 @@ const Home = observer(() => {
                     left: '50%',
                     right: 'auto',
                     bottom: 'auto',
-                    marginRight: '-20%',
+                    marginRight: '-50%',
                     transform: 'translate(-50%, -50%)',
                   }
                 }}
@@ -1303,8 +1325,8 @@ const Home = observer(() => {
                   flexDirection: 'column',
                   maxWidth: '100%'
                 }}>
-                  <h3 style={{ textAlign: 'center', fontWeight: 'bold', padding: 5 }}>{knowNFT.name}</h3>
-                  <img src={knowNFT.image} style={{ display: 'block', marginRight: 'auto', marginLeft: 'auto' }} width={140} />
+                  <h3 style={{ textAlign: 'center', fontWeight: 'bold', padding: 5, fontSize: 20 }}>{knowNFT.name}</h3>
+                  <img src={knowNFT.image} style={{ display: 'block', marginRight: 'auto', marginLeft: 'auto' }} width={600} />
                 </Box>
                 <Box style={{ textAlign: 'center' }}>
                   <p style={{ fontSize: 22, fontWeight: 'bold', color: 'green' }}>Price {knowNFT.price} IOTX</p>
@@ -1438,7 +1460,7 @@ const Home = observer(() => {
                     </div>
                   </Lazyload>
                 )
-              }):null}
+              }) : null}
             </div>
           }
         </div>

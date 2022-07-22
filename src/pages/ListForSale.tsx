@@ -154,7 +154,7 @@ const ListforSale = observer(() => {
         }
         //fetch machinfiNFT
         let theListedNFT = await god.currentNetwork.execContract({
-            address: '0x8b58c2225b92F3B3252B2c5860AC240dCE05172F',
+            address: '0x7C3CaCc88e469ED9365FeDe9426E947A985ae495',
             abi: marketplaceABI,
             method: "fetchMyNFTs",
             params: []
@@ -291,7 +291,7 @@ const ListforSale = observer(() => {
         //var delistItem = item.toNumber()
         try {
             let theListedNFT = await god.currentNetwork.execContract({
-                address: '0x8b58c2225b92F3B3252B2c5860AC240dCE05172F',
+                address: '0x7C3CaCc88e469ED9365FeDe9426E947A985ae495',
                 abi: marketplaceABI,
                 method: "delistNFT",
                 params: ["0x9756E951dd76e933e34434Db4Ed38964951E588b", delistItem]
@@ -317,7 +317,7 @@ const ListforSale = observer(() => {
         //var delistItem = item.toNumber()
         try {
             let theListedNFT = await god.currentNetwork.execContract({
-                address: '0x8b58c2225b92F3B3252B2c5860AC240dCE05172F',
+                address: '0x7C3CaCc88e469ED9365FeDe9426E947A985ae495',
                 abi: marketplaceABI,
                 method: "delistNFT",
                 params: ["0x0c5AB026d74C451376A4798342a685a0e99a5bEe", delistItem]
@@ -343,7 +343,7 @@ const ListforSale = observer(() => {
         //var delistItem = item.toNumber()
         try {
             let theListedNFT = await god.currentNetwork.execContract({
-                address: '0x8b58c2225b92F3B3252B2c5860AC240dCE05172F',
+                address: '0x7C3CaCc88e469ED9365FeDe9426E947A985ae495',
                 abi: marketplaceABI,
                 method: "delistNFT",
                 params: ["0x4608eF714C8047771054757409c1A451CEf8d69f", delistItem]
@@ -371,7 +371,7 @@ const ListforSale = observer(() => {
         //var delistItem = item.toNumber()
         try {
             let theListedNFT = await god.currentNetwork.execContract({
-                address: '0x8b58c2225b92F3B3252B2c5860AC240dCE05172F',
+                address: '0x7C3CaCc88e469ED9365FeDe9426E947A985ae495',
                 abi: marketplaceABI,
                 method: "delistNFT",
                 params: ["0xf129A758650A340958AEc74afc2E8D1E52180290", delistItem]
@@ -400,8 +400,8 @@ const ListforSale = observer(() => {
                     address: "0x9756E951dd76e933e34434Db4Ed38964951E588b",
                     abi: erc721,
                     method: "setApprovalForAll",
-                    params: ["0x8b58c2225b92F3B3252B2c5860AC240dCE05172F", true]
-                    //params: ["0x8b58c2225b92F3B3252B2c5860AC240dCE05172F", Number(theNFT.edition)]
+                    params: ["0x7C3CaCc88e469ED9365FeDe9426E947A985ae495", true]
+                    //params: ["0x7C3CaCc88e469ED9365FeDe9426E947A985ae495", Number(theNFT.edition)]
                 })
 
                 let theReceipt = await theApproval.wait(); // to get the wait done
@@ -410,7 +410,7 @@ const ListforSale = observer(() => {
                         address: "0x9756E951dd76e933e34434Db4Ed38964951E588b",
                         abi: erc721,
                         method: "isApprovedForAll",
-                        params: [god.currentNetwork.account, "0x8b58c2225b92F3B3252B2c5860AC240dCE05172F"]
+                        params: [god.currentNetwork.account, "0x7C3CaCc88e469ED9365FeDe9426E947A985ae495"]
                     })
                     if (approvalStatus == true) {
                         setSpinner(false)
@@ -431,7 +431,7 @@ const ListforSale = observer(() => {
             try {
                 var listAmount = userPrice + '0'.repeat(18);
                 let theAddress = await god.currentNetwork.execContract({
-                    address: "0x8b58c2225b92F3B3252B2c5860AC240dCE05172F",
+                    address: "0x7C3CaCc88e469ED9365FeDe9426E947A985ae495",
                     abi: marketplaceABI,
                     method: "createMarketItem",
                     params: [
@@ -468,8 +468,8 @@ const ListforSale = observer(() => {
                     address: "0x0c5AB026d74C451376A4798342a685a0e99a5bEe",
                     abi: erc721,
                     method: "setApprovalForAll",
-                    params: ["0x8b58c2225b92F3B3252B2c5860AC240dCE05172F", true]
-                    //params: ["0x8b58c2225b92F3B3252B2c5860AC240dCE05172F", Number(theNFT.edition)]
+                    params: ["0x7C3CaCc88e469ED9365FeDe9426E947A985ae495", true]
+                    //params: ["0x7C3CaCc88e469ED9365FeDe9426E947A985ae495", Number(theNFT.edition)]
                 })
 
                 let theReceipt = await theApproval.wait(); // to get the wait done
@@ -478,7 +478,7 @@ const ListforSale = observer(() => {
                         address: "0x0c5AB026d74C451376A4798342a685a0e99a5bEe",
                         abi: erc721,
                         method: "isApprovedForAll",
-                        params: [god.currentNetwork.account, "0x8b58c2225b92F3B3252B2c5860AC240dCE05172F"]
+                        params: [god.currentNetwork.account, "0x7C3CaCc88e469ED9365FeDe9426E947A985ae495"]
                     })
                     if (approvalStatus == true) {
                         toast.success(String('Approved! Txn:' + theReceipt.transactionHash))
@@ -499,7 +499,7 @@ const ListforSale = observer(() => {
             try {
                 var listAmount = userPrice + '0'.repeat(18);
                 let theAddress = await god.currentNetwork.execContract({
-                    address: "0x8b58c2225b92F3B3252B2c5860AC240dCE05172F",
+                    address: "0x7C3CaCc88e469ED9365FeDe9426E947A985ae495",
                     abi: marketplaceABI,
                     method: "createMarketItem",
                     params: [
@@ -535,8 +535,8 @@ const ListforSale = observer(() => {
                     address: "0x4608eF714C8047771054757409c1A451CEf8d69f",
                     abi: iotexDomainABI,
                     method: "setApprovalForAll",
-                    params: ["0x8b58c2225b92F3B3252B2c5860AC240dCE05172F", true]
-                    //params: ["0x8b58c2225b92F3B3252B2c5860AC240dCE05172F", Number(theNFT.edition)]
+                    params: ["0x7C3CaCc88e469ED9365FeDe9426E947A985ae495", true]
+                    //params: ["0x7C3CaCc88e469ED9365FeDe9426E947A985ae495", Number(theNFT.edition)]
                 })
 
                 let theReceipt = await theApproval.wait(); // to get the wait done
@@ -545,7 +545,7 @@ const ListforSale = observer(() => {
                         address: "0x4608ef714c8047771054757409c1a451cef8d69f",
                         abi: iotexDomainABI,
                         method: "isApprovedForAll",
-                        params: [god.currentNetwork.account, "0x8b58c2225b92F3B3252B2c5860AC240dCE05172F"]
+                        params: [god.currentNetwork.account, "0x7C3CaCc88e469ED9365FeDe9426E947A985ae495"]
                     })
                     if (approvalStatus == true) {
                         toast.success(String('Approved! Txn:' + theReceipt.transactionHash))
@@ -566,7 +566,7 @@ const ListforSale = observer(() => {
             try {
                 var listAmount = userPrice + '0'.repeat(18);
                 let theAddress = await god.currentNetwork.execContract({
-                    address: "0x8b58c2225b92F3B3252B2c5860AC240dCE05172F",
+                    address: "0x7C3CaCc88e469ED9365FeDe9426E947A985ae495",
                     abi: marketplaceABI,
                     method: "createMarketItem",
                     params: [
@@ -601,8 +601,8 @@ const ListforSale = observer(() => {
                     address: "0xf129A758650A340958AEc74afc2E8D1E52180290",
                     abi: KnowNFTABI,
                     method: "setApprovalForAll",
-                    params: ["0x8b58c2225b92F3B3252B2c5860AC240dCE05172F", true]
-                    //params: ["0x8b58c2225b92F3B3252B2c5860AC240dCE05172F", Number(theNFT.edition)]
+                    params: ["0x7C3CaCc88e469ED9365FeDe9426E947A985ae495", true]
+                    //params: ["0x7C3CaCc88e469ED9365FeDe9426E947A985ae495", Number(theNFT.edition)]
                 })
 
                 let theReceipt = await theApproval.wait(); // to get the wait done
@@ -611,7 +611,7 @@ const ListforSale = observer(() => {
                         address: "0xf129A758650A340958AEc74afc2E8D1E52180290",
                         abi: KnowNFTABI,
                         method: "isApprovedForAll",
-                        params: [god.currentNetwork.account, "0x8b58c2225b92F3B3252B2c5860AC240dCE05172F"]
+                        params: [god.currentNetwork.account, "0x7C3CaCc88e469ED9365FeDe9426E947A985ae495"]
                     })
                     if (approvalStatus == true) {
                         toast.success(String('Approved! Txn:' + theReceipt.transactionHash))
@@ -632,7 +632,7 @@ const ListforSale = observer(() => {
             try {
                 var listAmount = userPrice + '0'.repeat(18);
                 let theAddress = await god.currentNetwork.execContract({
-                    address: "0x8b58c2225b92F3B3252B2c5860AC240dCE05172F",
+                    address: "0x7C3CaCc88e469ED9365FeDe9426E947A985ae495",
                     abi: marketplaceABI,
                     method: "createMarketItem",
                     params: [
@@ -1267,8 +1267,6 @@ const ListforSale = observer(() => {
                                     }}>
                                         <h3 style={{ textAlign: 'center', fontWeight: 'bold', padding: 5 }}>{iotexDomainNFT.name}</h3>
                                         <img src={iotexDomainNFT.image} style={{ display: 'block', marginRight: 'auto', marginLeft: 'auto' }} width={140} />
-
-
                                     </Box>
                                     <Box style={{ padding: 10, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
                                         <p style={{ fontWeight: 'bold', marginBottom: 10 }}>List {iotexDomainNFT.name} for sale</p>
