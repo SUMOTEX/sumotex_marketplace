@@ -53,6 +53,7 @@ export const DesktopNav = observer((props: BoxProps) => {
     <Stack direction={'row'} spacing={1} {...props}>
        <ChakraLink pt={2}textDecoration="underline" borderRadius='md' color='black' fontWeight={'bold'} px={2} href="/" key={"/"}>Marketplace</ChakraLink>
       <ChakraLink pt={2}textDecoration="underline" borderRadius='md' color='black' fontWeight={'bold'} px={2} href="/ListForSale.html" key={"/ListForSale"}>Sell My NFT</ChakraLink>
+      <ChakraLink pt={2}textDecoration="underline" borderRadius='md' color='black' fontWeight={'bold'} px={2} href="/buyBack.html" key={"/ListForSale"}>Buyback</ChakraLink>
       <Button onClick={store.showConnecter} pl={1} borderRadius="40">
         <Img w={2} src={god.currentChain.logoUrl} />
         <Box ml={1}>{god.currentChain.name}</Box>
