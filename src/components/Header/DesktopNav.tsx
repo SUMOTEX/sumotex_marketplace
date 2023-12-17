@@ -29,10 +29,10 @@ export const DesktopNav = observer((props: BoxProps) => {
     return (
       <Button pr="0" pl="2" bg={useColorModeValue('gray.100', 'dark.100')}>
 
-        <Text mr="2" fontSize="sm">
+        {/* <Text mr="2" fontSize="sm">
           <chakra.span mr={1}>{Number(god.currentChain.Coin.balance.format).toFixed(1)}</chakra.span>
           <chakra.span>{god.currentChain.Coin.symbol}</chakra.span>
-        </Text>
+        </Text> */}
         <Button
           px={4}
           onClick={store.showWalletInfo}

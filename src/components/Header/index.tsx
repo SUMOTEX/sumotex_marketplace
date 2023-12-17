@@ -68,7 +68,6 @@ export const Header = observer(() => {
             <Flex display={{ base: 'flex', md: 'flex' }} ml={2}>
               <DesktopNav />
             </Flex>
-            <IconButton borderRadius="12" aria-label={'Toggle Color Mode'} onClick={toggleColorMode} icon={colorMode == 'light' ? <IoMoon size={18} /> : <IoSunny size={18} />} />
           </Stack>
         </Container>
       </Flex>

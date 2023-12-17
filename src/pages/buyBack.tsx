@@ -26,14 +26,15 @@ const BuyBackPage = observer(() => {
         name: '',
         currentMinted: 0
     });
-    const [selectedNFT,setSelectedNFT]=useState(0);
+    const [selectedNFT, setSelectedNFT] = useState(0);
     const [xsumo, setXSumo] = useState([]);
     const [sesumo, setSESumo] = useState([]);
     const [selectedSUMO, setSelected] = useState(0);
     const [userHasNFT, setUseHasNFT] = useState(false)
     const [flag, setFlag] = useState(0);
     const [loading, setLoading] = useState(true);
-    const [totalNFT, setTotalNFT] = useState(0)
+    const [totalNFT, setTotalNFT] = useState(0);
+    const [totalXSUMONFT,setTotalXSUMONFT]=useState(0);
     const [refreshPage, setRefreshPage] = useState(false)
 
     const [displayingNFT, setDisplayNFT] = useState([])
@@ -101,7 +102,7 @@ const BuyBackPage = observer(() => {
             method: "balanceOf",
             params: [god.currentNetwork.account]
         })
-        console.log("XSUMO", Number(xSUMOBalance));
+        setTotalXSUMONFT(Number(xSUMOBalance));
         for (var i = 0; i < Number(xSUMOBalance); i++) {
             let xSumoBalanceArray = await god.currentNetwork.execContract({
                 address: '0x7D150D3eb3aD7aB752dF259c94A8aB98d700FC00',
@@ -112,6 +113,7 @@ const BuyBackPage = observer(() => {
             })
             getXSUMONFT(Number(xSumoBalanceArray));
         }
+        
     }
     const getSESUMONFT = async () => {
         try {
@@ -134,21 +136,32 @@ const BuyBackPage = observer(() => {
         }
     }
     const nextNFT = () => {
-        console.log(totalNFT)
-        if (selectedSUMO < totalNFT) {
-            setSelected(selectedSUMO + 1);
+        if(selectedNFT==0){
+            if (selectedSUMO < totalNFT-1) {
+                setSelected(selectedSUMO + 1);
+            }
+        }else{
+            if (selectedSUMO < totalXSUMONFT-1) {
+                setSelected(selectedSUMO + 1);
+            }
         }
     }
 
     const beforeNFT = () => {
-        if (selectedSUMO > 0) {
-            setSelected(selectedSUMO - 1);
+        if(selectedNFT==0){
+            if (selectedSUMO > 0) {
+                setSelected(selectedSUMO - 1);
+            }
+        }else{
+            if (selectedSUMO>0){
+                setSelected(selectedSUMO - 1);
+            }
         }
     }
-    const changeNFT = (selectedNFT)=>{
-        if (selectedNFT==0){
+    const changeNFT = (selectedNFT) => {
+        if (selectedNFT == 0) {
             setSelectedNFT(0)
-        }else{
+        } else {
             setSelectedNFT(1)
         }
 
@@ -229,21 +242,6 @@ const BuyBackPage = observer(() => {
                         dividendAmount: rarity.dividend,
                         nftStyle: rarity.type,
                         rankingPercentile: (Number(rarity.ranking)),
-                    }
-                ]))
-                setDisplayNFT(prevState => ([
-                    ...prevState,
-                    {
-                        name: theItem.name,
-                        dna: theItem.dna,
-                        rewards: rarity.dividend == 25 ? '50' : rarity.dividend == 15 ? '6' : rarity.dividend == 12 ? '4' : rarity.dividend == 7 ? '2' : '1',
-                        edition: theItem.edition,
-                        image: stringImage,
-                        attributes: theItem.attributes,
-                        dividendAmount: rarity.dividend,
-                        nftStyle: rarity.type,
-                        rankingPercentile: (Number(rarity.ranking)),
-                        mintedDate: theDate
                     }
                 ]))
 
@@ -359,60 +357,58 @@ const BuyBackPage = observer(() => {
 
 
     return (
-        <Center style={{ margin: 10 }}>
-            {!god.isConnect ? <div>Wallet not connected</div> : <Box mt={10} m={10} flexShrink={'inherit'} border="1px" borderRadius={6} padding={5}>
+        <Center style={{ margin: 2 }}>
+            {!god.isConnect ? <div>Wallet not connected</div> : <Box mt={2} m={1} flexShrink={'inherit'} border="1px" borderRadius={6} padding={5}>
                 <div style={{ textAlign: 'center', fontSize: 24, fontWeight: 'bold' }}>SUMOTEX BUY BACK PROGRAM</div>
-                <div style={{ textAlign: 'center',padding:5,alignItems: 'center' }}>
-                    <Button
+                <div style={{ textAlign: 'center', padding: 5, alignItems: 'center' }}>
+                {sesumo.length==0?null:<Button
                         type="button" onClick={() => changeNFT(0)}>
                         SE SUMO
-                    </Button>
-                    <Button
+                    </Button>}
+                    {xsumo.length==0?null:<Button
                         type="button" onClick={() => changeNFT(1)}>
                         XSUMO
-                    </Button>
+                    </Button>}
                 </div>
-                {selectedNFT==0?
-                    sesumo.length != 0 ? 
-                    <Box style={{
-                    margin: 10,
-                    padding: 5,
-                    paddingLeft: 30,
-                    justifyContent: 'center',
-                    justifyItems: 'center',
-                    display: 'flex',
-                    flexWrap: "wrap",
-                    flexDirection: 'column',
-                    maxWidth: '100%'
-                }}>
-                    <h3 style={{ textAlign: 'center', fontWeight: 'bold', padding: 5 }}>{sesumo[selectedSUMO].name}</h3>
-                    <img src={sesumo[selectedSUMO].image} style={{ display: 'block', marginRight: 'auto', marginLeft: 'auto' }} width={200} />
-                    <p style={{ textAlign: 'center', fontWeight: 'bold', padding: 5 }}>ID: {sesumo[selectedSUMO].edition}</p>
-                    <p style={{ textAlign: 'center', fontSize: 18, fontWeight: 'bold', padding: 5 }}>APY: {sesumo[selectedSUMO].dividendAmount}%</p>
-                </Box> :null
-                :
-                xsumo.length != 0 ? 
-                <Box style={{
-                    margin: 10,
-                    padding: 5,
-                    paddingLeft: 30,
-                    justifyContent: 'center',
-                    justifyItems: 'center',
-                    display: 'flex',
-                    flexWrap: "wrap",
-                    flexDirection: 'column',
-                    maxWidth: '100%'
-                }}>
-                    <h3 style={{ textAlign: 'center', fontWeight: 'bold', padding: 5 }}>{xsumo[selectedSUMO].name}</h3>
-                    <img src={xsumo[selectedSUMO].image} style={{ display: 'block', marginRight: 'auto', marginLeft: 'auto' }} width={200} />
-                    <p style={{ textAlign: 'center', fontWeight: 'bold', padding: 5 }}>ID: {xsumo[selectedSUMO].edition}</p>
-                    <p style={{ textAlign: 'center', fontSize: 18, fontWeight: 'bold', padding: 5 }}>APY: {xsumo[selectedSUMO].dividendAmount}%</p>
-                </Box>:null
+                {selectedNFT == 0 ?
+                    sesumo.length > 0 ?
+                        <Box style={{
+                            margin: 5,
+                            padding: 5,
+                            justifyContent: 'center',
+                            justifyItems: 'center',
+                            display: 'flex',
+                            flexWrap: "wrap",
+                            flexDirection: 'column',
+                            maxWidth: '100%'
+                        }}>
+                            <h3 style={{ textAlign: 'center', fontWeight: 'bold', padding: 5 }}>{sesumo[selectedSUMO].name}</h3>
+                            <img src={sesumo[selectedSUMO].image} style={{ display: 'block', marginRight: 'auto', marginLeft: 'auto' }} width={250} />
+                            <p style={{ textAlign: 'center', fontWeight: 'bold', padding: 5 }}>ID: {sesumo[selectedSUMO].edition}</p>
+                            <p style={{ textAlign: 'center', fontSize: 18, fontWeight: 'bold', padding: 5 }}>APY: {sesumo[selectedSUMO].dividendAmount}%</p>
+                        </Box> : null
+                    :
+                    xsumo.length > 0 ?
+                        <Box style={{
+                            margin: 5,
+                            padding: 5,
+                            justifyContent: 'center',
+                            justifyItems: 'center',
+                            display: 'flex',
+                            flexWrap: "wrap",
+                            flexDirection: 'column',
+                            maxWidth: '100%'
+                        }}>
+                            <h3 style={{ textAlign: 'center', fontWeight: 'bold', padding: 5 }}>{xsumo[selectedSUMO].name}</h3>
+                            <img src={xsumo[selectedSUMO].image} style={{ display: 'block', marginRight: 'auto', marginLeft: 'auto' }} width={250} />
+                            <p style={{ textAlign: 'center', fontWeight: 'bold', padding: 5 }}>ID: {xsumo[selectedSUMO].edition}</p>
+                            <p style={{ textAlign: 'center', fontSize: 18, fontWeight: 'bold', padding: 5 }}>APY: {xsumo[selectedSUMO].dividendAmount}%</p>
+                        </Box> : null
                 }
                 <Flex justify="space-around">
                     <Button
                         type="button" onClick={() => beforeNFT()}>
-                        Before
+                        Previous
                     </Button>
                     <Button
                         type="button" onClick={() => nextNFT()}>
@@ -438,16 +434,16 @@ const BuyBackPage = observer(() => {
                         </Button>
                     )}
                 </Flex>
-                <p style={{ textAlign: 'center', fontSize: 13, marginTop: 10 }}>
+                <p style={{ textAlign: 'center', fontSize: 14, marginTop: 10 }}>
                     Contract Address: 1234
                 </p>
-                <p style={{ textAlign: 'center', fontSize: 13, marginTop: 5 }}>
+                <p style={{ textAlign: 'center', fontSize: 14, marginTop:0 }}>
                     XSUMO NFT: 2,100 IOTEX per NFT
                 </p>
-                <p style={{ textAlign: 'center', fontSize: 13, marginTop: 5 }}>
+                <p style={{ textAlign: 'center', fontSize: 14, marginTop: 0 }}>
                     SE SUMO NFT: 1,575 IOTEX per NFT
                 </p>
-                <p style={{ textAlign: 'center', fontSize: 13, marginTop: 5 }}>
+                <p style={{ textAlign: 'center', fontSize: 12, marginTop: 15 }}>
                     * First month (December 2023) allocation for repurchase are 20 units of SE-SUMO and 20 units of X-SUMO. <br />
                     * Subsequent month allocation thereafter allocation will be 7 SE-SUMO and 7 X-SUMO <br /> (Amount will vary- increase/decrease depending on market conditions)
                 </p>
