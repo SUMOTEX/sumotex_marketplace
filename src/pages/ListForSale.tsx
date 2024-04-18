@@ -52,7 +52,6 @@ const ListforSale = observer(() => {
     //check listed xsumo and itemID
     const [listxSumoNFT, setXListedID] = useState([])
     const [listxSumoNFTItemID, setXListedItemID] = useState([]);
-    const [xitemID, setXItemID] = useState([]);
     const [xsumo, setXSumo] = useState([])
     const [xsumoNFT, setXSUMONFTModal] = useState({ image: '', name: '', id: '', dividendAmount: '' })
 

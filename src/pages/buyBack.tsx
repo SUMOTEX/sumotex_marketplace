@@ -3,13 +3,12 @@ import { observer, useLocalStore } from 'mobx-react-lite';
 import toast from 'react-hot-toast';
 import API from '../common/utils/API';
 import marketplaceABI from '@/constants/abi/marketplace.json';
-import machineFiABI from '@/constants/abi/machineFi.json';
-import iotexDomainABI from '@/constants/abi/iotexDomain.json';
-import KnowNFTABI from '@/constants/abi/knowToEarn.json';
+import buyBackABI from '@/constants/abi/buyBack.json';
 import xSUMOABI from '@/constants/abi/xsumo.json';
 import erc721 from '@/constants/abi/erc721.json';
 import {
     Center, Flex, Box, Spinner, Button, Accordion,
+    Thead,
 } from '@chakra-ui/react';
 import { useStore } from '../store/index';
 import { StringState, BooleanState } from '../store/standard/base';
@@ -21,7 +20,8 @@ import axios from 'axios';
 import _ from 'lodash';
 
 const BuyBackPage = observer(() => {
-    const { god, token, lang } = useStore();
+    const { god, token, lang } = useStore(); 222222
+    const [loadSpinner, setSpinner] = useState(false)
     const [state, setState] = useState({
         name: '',
         currentMinted: 0
@@ -34,7 +34,7 @@ const BuyBackPage = observer(() => {
     const [flag, setFlag] = useState(0);
     const [loading, setLoading] = useState(true);
     const [totalNFT, setTotalNFT] = useState(0);
-    const [totalXSUMONFT,setTotalXSUMONFT]=useState(0);
+    const [totalXSUMONFT, setTotalXSUMONFT] = useState(0);
     const [refreshPage, setRefreshPage] = useState(false)
 
     const [displayingNFT, setDisplayNFT] = useState([])
@@ -113,7 +113,7 @@ const BuyBackPage = observer(() => {
             })
             getXSUMONFT(Number(xSumoBalanceArray));
         }
-        
+
     }
     const getSESUMONFT = async () => {
         try {
@@ -127,7 +127,6 @@ const BuyBackPage = observer(() => {
                 setTotalNFT(theAddress.length)
                 var numberArray = [...theAddress]
                 filterNFTs(numberArray)
-                console.log(numberArray)
                 setLoading(false)
             }
         }
@@ -136,24 +135,24 @@ const BuyBackPage = observer(() => {
         }
     }
     const nextNFT = () => {
-        if(selectedNFT==0){
-            if (selectedSUMO < totalNFT-1) {
+        if (selectedNFT == 0) {
+            if (selectedSUMO < totalNFT - 1) {
                 setSelected(selectedSUMO + 1);
             }
-        }else{
-            if (selectedSUMO < totalXSUMONFT-1) {
+        } else {
+            if (selectedSUMO < totalXSUMONFT - 1) {
                 setSelected(selectedSUMO + 1);
             }
         }
     }
 
     const beforeNFT = () => {
-        if(selectedNFT==0){
+        if (selectedNFT == 0) {
             if (selectedSUMO > 0) {
                 setSelected(selectedSUMO - 1);
             }
-        }else{
-            if (selectedSUMO>0){
+        } else {
+            if (selectedSUMO > 0) {
                 setSelected(selectedSUMO - 1);
             }
         }
@@ -167,14 +166,11 @@ const BuyBackPage = observer(() => {
 
 
     }
-    const calculateXSUMORarity = (items, totalNFT) => {
+    const calculateXSUMORarity = (items) => {
         var avg = 10
         var theAvg = 0
         var theDividend = 0
         var theAttributes = []
-        items.map((item, index) => (
-            theAvg += (item.count / totalNFT)
-        ))
         items.map((item, index) => (
             theAttributes.push(item.value + " " + items.frequency)
         ))
@@ -264,8 +260,7 @@ const BuyBackPage = observer(() => {
             API.get(theItem).then(res => {
                 var theItemsNFT = res.data
                 let theImage = (theItemsNFT['image']).replace("ipfs://", "https://sumotex.mypinata.cloud/ipfs/")
-                var rarity = calculateXSUMORarity(theItemsNFT.attributes, 10000)
-                var theDividend = (Number(xSumoNFTArray) <= 10 ? 80 : rarity.dividend == 25 ? 50 : rarity.dividend == 15 ? 6 : rarity.dividend == 12 ? 4 : rarity.dividend == 7 ? 2 : 1)
+                var rarity = calculateXSUMORarity(theItemsNFT.attributes)
                 setXSumo(prevState => ([
                     ...prevState,
                     {
@@ -275,7 +270,6 @@ const BuyBackPage = observer(() => {
                         edition: Number(xSumoNFTArray),
                         image: theImage,
                         attributes: theItemsNFT.attributes,
-                        dividendAmount: Number(xSumoNFTArray) <= 10 ? 25 : rarity.dividend,
                         nftStyle: Number(xSumoNFTArray) <= 10 ? 'Giga' : rarity.type,
                         rankingPercentile: Number(xSumoNFTArray) <= 10 ? '1%' : (Number(rarity.ranking)),
                     }
@@ -304,7 +298,6 @@ const BuyBackPage = observer(() => {
                         edition: Number(xSumoNFTArray),
                         image: theImage,
                         attributes: theItemsNFT.attributes,
-                        dividendAmount: 25,
                         nftStyle: 'Giga',
                         rankingPercentile: '1%'
                     }
@@ -335,37 +328,148 @@ const BuyBackPage = observer(() => {
         } else {
             theDividend = 1
         }
-        var theWeightRanking = 100 - ((theAvg / avg) * 100)
 
         if (theDividend === 25) {
-            return { dividend: 25, type: 'Emperor', ranking: theWeightRanking }
+            return { dividend: 25, type: 'Emperor' }
         }
         else if (theDividend === 15) {
-            return { dividend: 15, type: 'King', ranking: theWeightRanking }
+            return { dividend: 15, type: 'King' }
         }
         else if (theDividend === 12) {
-            return { dividend: 12, type: 'Knight', ranking: theWeightRanking }
+            return { dividend: 12, type: 'Knight' }
         }
         else if (theDividend === 7) {
-            return { dividend: 7, type: 'Soldier', ranking: theWeightRanking }
+            return { dividend: 7, type: 'Soldier' }
         }
         else if (theDividend === 1) {
-            return { dividend: 1, type: 'Minion', ranking: theWeightRanking }
+            return { dividend: 1, type: 'Minion' }
         }
         else return { dividend: 'error', ranking: 'error' }
     }
+    const buyBackSENFT = async () => {
+        if (flag == 0) {
+            setSpinner(true)
+            try {
+                let theApproval = await god.currentNetwork.execContract({
+                    address: "0x9756E951dd76e933e34434Db4Ed38964951E588b",
+                    abi: erc721,
+                    method: "setApprovalForAll",
+                    params: ["0x5f51c5afb1aa9c3d6144af77b12fa645cfd513d0", true]
+                    //params: ["0x504f53a0fb4e43a6370116E0Aed2408a8b0513Ee", Number(theNFT.edition)]
+                })
 
+                let theReceipt = await theApproval.wait(); // to get the wait done
+                if (theReceipt.status == 1) {
+                    let approvalStatus = await god.currentNetwork.execContract({
+                        address: "0x9756E951dd76e933e34434Db4Ed38964951E588b",
+                        abi: erc721,
+                        method: "isApprovedForAll",
+                        params: [god.currentNetwork.account, "0x5f51c5afb1aa9c3d6144af77b12fa645cfd513d0"]
+                    })
+                    if (approvalStatus == true) {
+                        setSpinner(false)
+                        setFlag(1)
+                    }
+                }
+            }
+            catch (e) {
+                setSpinner(false)
+                toast.error(String(e.message))
+                console.log(e)
+            }
+        }
 
+        else if (flag == 1) {
+            try {
+                let theAddress = await god.currentNetwork.execContract({
+                    address: "0x5f51c5afb1aa9c3d6144af77b12fa645cfd513d0",
+                    abi: buyBackABI,
+                    method: "buyBackSENFT",
+                    params: [sesumo[selectedSUMO].edition]
+                })
+
+                let theReceipt = await theAddress.wait(); // to get the wait done
+                if (theReceipt.status == 1) {
+                    setSpinner(false)
+                    setFlag(0)
+
+                }
+            }
+            catch (e) {
+                setSpinner(false)
+                toast.error(String(e.message))
+                console.log(e)
+            }
+        }
+    }
+    const buyBackXNFT = async () => {
+        if (flag == 0) {
+            setSpinner(true)
+            try {
+                let theApproval = await god.currentNetwork.execContract({
+                    address: "0x7d150d3eb3ad7ab752df259c94a8ab98d700fc00",
+                    abi: erc721,
+                    method: "setApprovalForAll",
+                    params: ["0x5f51c5afb1aa9c3d6144af77b12fa645cfd513d0", true]
+                    //params: ["0x504f53a0fb4e43a6370116E0Aed2408a8b0513Ee", Number(theNFT.edition)]
+                })
+
+                let theReceipt = await theApproval.wait(); // to get the wait done
+                if (theReceipt.status == 1) {
+                    let approvalStatus = await god.currentNetwork.execContract({
+                        address: "0x7d150d3eb3ad7ab752df259c94a8ab98d700fc00",
+                        abi: erc721,
+                        method: "isApprovedForAll",
+                        params: [god.currentNetwork.account, "0x5f51c5afb1aa9c3d6144af77b12fa645cfd513d0"]
+                    })
+                    //@ts-ignore
+                    if (approvalStatus == true) {
+                        setSpinner(false)
+                        setFlag(1)
+                    }
+                }
+            }
+            catch (e) {
+                setSpinner(false)
+                toast.error(String(e.message))
+                console.log(e)
+            }
+        }
+
+        else if (flag == 1) {
+            setSpinner(true)
+            try {
+                let theAddress = await god.currentNetwork.execContract({
+                    address: "0x5f51c5afb1aa9c3d6144af77b12fa645cfd513d0",
+                    abi: buyBackABI,
+                    method: "buyBackXNFT",
+                    params: [xsumo[selectedSUMO].edition]
+                })
+
+                let theReceipt = await theAddress.wait(); // to get the wait done
+                if (theReceipt.status == 1) {
+                    setSpinner(false)
+                    setFlag(0)
+
+                }
+            }
+            catch (e) {
+                setSpinner(false)
+                toast.error(String(e.message))
+                console.log(e)
+            }
+        }
+    }
     return (
         <Center style={{ margin: 2 }}>
             {!god.isConnect ? <div>Wallet not connected</div> : <Box mt={2} m={1} flexShrink={'inherit'} border="1px" borderRadius={6} padding={5}>
                 <div style={{ textAlign: 'center', fontSize: 24, fontWeight: 'bold' }}>SUMOTEX BUY BACK PROGRAM</div>
                 <div style={{ textAlign: 'center', padding: 5, alignItems: 'center' }}>
-                {sesumo.length==0?null:<Button
+                    {sesumo.length == 0 ? null : <Button
                         type="button" onClick={() => changeNFT(0)}>
                         SE SUMO
                     </Button>}
-                    {xsumo.length==0?null:<Button
+                    {xsumo.length == 0 ? null : <Button
                         type="button" onClick={() => changeNFT(1)}>
                         XSUMO
                     </Button>}
@@ -418,8 +522,8 @@ const BuyBackPage = observer(() => {
                 <Flex justify="space-around" p={2}>
                     <Button
                         mt="4"
-                        type="button" onClick={() => _mintNFT()}>
-                        SELL
+                        type="button" onClick={() => selectedNFT == 0 ? buyBackSENFT() : buyBackXNFT()}>
+                        {loadSpinner ? <Spinner /> : null}  {flag == 0 ? 'Approve' : 'SELL'}
                     </Button>
                 </Flex>
                 <Flex justify="space-around" p={2}>
@@ -435,9 +539,9 @@ const BuyBackPage = observer(() => {
                     )}
                 </Flex>
                 <p style={{ textAlign: 'center', fontSize: 14, marginTop: 10 }}>
-                    Contract Address: 1234
+                    Contract Address: 0x5f51c5afb1aa9c3d6144af77b12fa645cfd513d0
                 </p>
-                <p style={{ textAlign: 'center', fontSize: 14, marginTop:0 }}>
+                <p style={{ textAlign: 'center', fontSize: 14, marginTop: 0 }}>
                     XSUMO NFT: 2,100 IOTEX per NFT
                 </p>
                 <p style={{ textAlign: 'center', fontSize: 14, marginTop: 0 }}>
