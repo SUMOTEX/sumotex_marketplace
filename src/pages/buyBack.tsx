@@ -461,98 +461,101 @@ const BuyBackPage = observer(() => {
         }
     }
     return (
-        <Center style={{ margin: 2 }}>
-            {!god.isConnect ? <div>Wallet not connected</div> : <Box mt={2} m={1} flexShrink={'inherit'} border="1px" borderRadius={6} padding={5}>
-                <div style={{ textAlign: 'center', fontSize: 24, fontWeight: 'bold' }}>SUMOTEX BUY BACK PROGRAM</div>
-                <div style={{ textAlign: 'center', padding: 5, alignItems: 'center' }}>
-                    {sesumo.length == 0 ? null : <Button
-                        type="button" onClick={() => changeNFT(0)}>
-                        SE SUMO
-                    </Button>}
-                    {xsumo.length == 0 ? null : <Button
-                        type="button" onClick={() => changeNFT(1)}>
-                        XSUMO
-                    </Button>}
-                </div>
-                {selectedNFT == 0 ?
-                    sesumo.length > 0 ?
-                        <Box style={{
-                            margin: 5,
-                            padding: 5,
-                            justifyContent: 'center',
-                            justifyItems: 'center',
-                            display: 'flex',
-                            flexWrap: "wrap",
-                            flexDirection: 'column',
-                            maxWidth: '100%'
-                        }}>
-                            <h3 style={{ textAlign: 'center', fontWeight: 'bold', padding: 5 }}>{sesumo[selectedSUMO].name}</h3>
-                            <img src={sesumo[selectedSUMO].image} style={{ display: 'block', marginRight: 'auto', marginLeft: 'auto' }} width={250} />
-                            <p style={{ textAlign: 'center', fontWeight: 'bold', padding: 5 }}>ID: {sesumo[selectedSUMO].edition}</p>
-                            <p style={{ textAlign: 'center', fontSize: 18, fontWeight: 'bold', padding: 5 }}>APY: {sesumo[selectedSUMO].dividendAmount}%</p>
-                        </Box> : null
-                    :
-                    xsumo.length > 0 ?
-                        <Box style={{
-                            margin: 5,
-                            padding: 5,
-                            justifyContent: 'center',
-                            justifyItems: 'center',
-                            display: 'flex',
-                            flexWrap: "wrap",
-                            flexDirection: 'column',
-                            maxWidth: '100%'
-                        }}>
-                            <h3 style={{ textAlign: 'center', fontWeight: 'bold', padding: 5 }}>{xsumo[selectedSUMO].name}</h3>
-                            <img src={xsumo[selectedSUMO].image} style={{ display: 'block', marginRight: 'auto', marginLeft: 'auto' }} width={250} />
-                            <p style={{ textAlign: 'center', fontWeight: 'bold', padding: 5 }}>ID: {xsumo[selectedSUMO].edition}</p>
-                            <p style={{ textAlign: 'center', fontSize: 18, fontWeight: 'bold', padding: 5 }}>APY: {xsumo[selectedSUMO].dividendAmount}%</p>
-                        </Box> : null
-                }
-                <Flex justify="space-around">
-                    <Button
-                        type="button" onClick={() => beforeNFT()}>
-                        Previous
-                    </Button>
-                    <Button
-                        type="button" onClick={() => nextNFT()}>
-                        Next
-                    </Button>
-                </Flex>
-                <Flex justify="space-around" p={2}>
-                    <Button
-                        mt="4"
-                        type="button" onClick={() => selectedNFT == 0 ? buyBackSENFT() : buyBackXNFT()}>
-                        {loadSpinner ? <Spinner /> : null}  {flag == 0 ? 'Approve' : 'SELL'}
-                    </Button>
-                </Flex>
-                <Flex justify="space-around" p={2}>
-                    <Button type="button" mt="4" disabled={!store.state.valid}
-                    >
-                        {store.state.msg}
-                    </Button>
-                    {store.state.valid && god.isConnect && (
-                        <Button type="button" mt="4" disabled={!store.state.valid}
-                        >
-                            {store.state.msgApprove}
-                        </Button>
-                    )}
-                </Flex>
-                <p style={{ textAlign: 'center', fontSize: 14, marginTop: 10 }}>
-                    Contract Address: 0x5f51c5afb1aa9c3d6144af77b12fa645cfd513d0
-                </p>
-                <p style={{ textAlign: 'center', fontSize: 14, marginTop: 0 }}>
-                    XSUMO NFT: 2,100 IOTEX per NFT
-                </p>
-                <p style={{ textAlign: 'center', fontSize: 14, marginTop: 0 }}>
-                    SE SUMO NFT: 1,575 IOTEX per NFT
-                </p>
-                <p style={{ textAlign: 'center', fontSize: 12, marginTop: 15 }}>
-                    * First month (December 2023) allocation for repurchase are 20 units of SE-SUMO and 20 units of X-SUMO. <br />
-                    * Subsequent month allocation thereafter allocation will be 7 SE-SUMO and 7 X-SUMO <br /> (Amount will vary- increase/decrease depending on market conditions)
-                </p>
-            </Box>}
+        <Center>
+            <h2>Sold out, thanks, please do wait for the next batch on the 19th same day.</h2>
         </Center>
+        // <Center style={{ margin: 2 }}>
+        //     {!god.isConnect ? <div>Wallet not connected</div> : <Box mt={2} m={1} flexShrink={'inherit'} border="1px" borderRadius={6} padding={5}>
+        //         <div style={{ textAlign: 'center', fontSize: 24, fontWeight: 'bold' }}>SUMOTEX BUY BACK PROGRAM</div>
+        //         <div style={{ textAlign: 'center', padding: 5, alignItems: 'center' }}>
+        //             {sesumo.length == 0 ? null : <Button
+        //                 type="button" onClick={() => changeNFT(0)}>
+        //                 SE SUMO
+        //             </Button>}
+        //             {xsumo.length == 0 ? null : <Button
+        //                 type="button" onClick={() => changeNFT(1)}>
+        //                 XSUMO
+        //             </Button>}
+        //         </div>
+        //         {selectedNFT == 0 ?
+        //             sesumo.length > 0 ?
+        //                 <Box style={{
+        //                     margin: 5,
+        //                     padding: 5,
+        //                     justifyContent: 'center',
+        //                     justifyItems: 'center',
+        //                     display: 'flex',
+        //                     flexWrap: "wrap",
+        //                     flexDirection: 'column',
+        //                     maxWidth: '100%'
+        //                 }}>
+        //                     <h3 style={{ textAlign: 'center', fontWeight: 'bold', padding: 5 }}>{sesumo[selectedSUMO].name}</h3>
+        //                     <img src={sesumo[selectedSUMO].image} style={{ display: 'block', marginRight: 'auto', marginLeft: 'auto' }} width={250} />
+        //                     <p style={{ textAlign: 'center', fontWeight: 'bold', padding: 5 }}>ID: {sesumo[selectedSUMO].edition}</p>
+        //                     <p style={{ textAlign: 'center', fontSize: 18, fontWeight: 'bold', padding: 5 }}>APY: {sesumo[selectedSUMO].dividendAmount}%</p>
+        //                 </Box> : null
+        //             :
+        //             xsumo.length > 0 ?
+        //                 <Box style={{
+        //                     margin: 5,
+        //                     padding: 5,
+        //                     justifyContent: 'center',
+        //                     justifyItems: 'center',
+        //                     display: 'flex',
+        //                     flexWrap: "wrap",
+        //                     flexDirection: 'column',
+        //                     maxWidth: '100%'
+        //                 }}>
+        //                     <h3 style={{ textAlign: 'center', fontWeight: 'bold', padding: 5 }}>{xsumo[selectedSUMO].name}</h3>
+        //                     <img src={xsumo[selectedSUMO].image} style={{ display: 'block', marginRight: 'auto', marginLeft: 'auto' }} width={250} />
+        //                     <p style={{ textAlign: 'center', fontWeight: 'bold', padding: 5 }}>ID: {xsumo[selectedSUMO].edition}</p>
+        //                     <p style={{ textAlign: 'center', fontSize: 18, fontWeight: 'bold', padding: 5 }}>APY: {xsumo[selectedSUMO].dividendAmount}%</p>
+        //                 </Box> : null
+        //         }
+        //         <Flex justify="space-around">
+        //             <Button
+        //                 type="button" onClick={() => beforeNFT()}>
+        //                 Previous
+        //             </Button>
+        //             <Button
+        //                 type="button" onClick={() => nextNFT()}>
+        //                 Next
+        //             </Button>
+        //         </Flex>
+        //         <Flex justify="space-around" p={2}>
+        //             <Button
+        //                 mt="4"
+        //                 type="button" onClick={() => selectedNFT == 0 ? buyBackSENFT() : buyBackXNFT()}>
+        //                 {loadSpinner ? <Spinner /> : null}  {flag == 0 ? 'Approve' : 'SELL'}
+        //             </Button>
+        //         </Flex>
+        //         <Flex justify="space-around" p={2}>
+        //             <Button type="button" mt="4" disabled={!store.state.valid}
+        //             >
+        //                 {store.state.msg}
+        //             </Button>
+        //             {store.state.valid && god.isConnect && (
+        //                 <Button type="button" mt="4" disabled={!store.state.valid}
+        //                 >
+        //                     {store.state.msgApprove}
+        //                 </Button>
+        //             )}
+        //         </Flex>
+        //         <p style={{ textAlign: 'center', fontSize: 14, marginTop: 10 }}>
+        //             Contract Address: 0x5f51c5afb1aa9c3d6144af77b12fa645cfd513d0
+        //         </p>
+        //         <p style={{ textAlign: 'center', fontSize: 14, marginTop: 0 }}>
+        //             XSUMO NFT: 2,100 IOTEX per NFT
+        //         </p>
+        //         <p style={{ textAlign: 'center', fontSize: 14, marginTop: 0 }}>
+        //             SE SUMO NFT: 1,575 IOTEX per NFT
+        //         </p>
+        //         <p style={{ textAlign: 'center', fontSize: 12, marginTop: 15 }}>
+        //             * First month (December 2023) allocation for repurchase are 20 units of SE-SUMO and 20 units of X-SUMO. <br />
+        //             * Subsequent month allocation thereafter allocation will be 7 SE-SUMO and 7 X-SUMO <br /> (Amount will vary- increase/decrease depending on market conditions)
+        //         </p>
+        //     </Box>}
+        // </Center>
     );
 });
 
