@@ -551,6 +551,7 @@ const BuyBackPage = observer(() => {
         //             SE SUMO NFT: 1,575 IOTEX per NFT
         //         </p>
         //         <p style={{ textAlign: 'center', fontSize: 12, marginTop: 15 }}>
+        //         * 2PM UTC <br/>
         //             * First month (December 2023) allocation for repurchase are 20 units of SE-SUMO and 20 units of X-SUMO. <br />
         //             * Subsequent month allocation thereafter allocation will be 7 SE-SUMO and 7 X-SUMO <br /> (Amount will vary- increase/decrease depending on market conditions)
         //         </p>
